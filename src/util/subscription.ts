@@ -165,7 +165,7 @@ const isType = (obj: unknown, nsid: string) => {
   try {
     lexicons.assertValidRecord(nsid, fixBlobRefs(obj))
     return true
-  } catch (err) {
+  } catch {
     return false
   }
 }

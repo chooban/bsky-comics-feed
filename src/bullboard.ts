@@ -7,7 +7,7 @@ const makeRouter = (ctx: AppContext, path: string) => {
   const serverAdapter = new ExpressAdapter()
   serverAdapter.setBasePath(path)
 
-  const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
+  createBullBoard({
     queues: [
       new BullMQAdapter(ctx.queue),
     ],

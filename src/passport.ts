@@ -1,7 +1,8 @@
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oidc';
+import {Express } from 'express'
 
-const addPassport = () => {
+const addPassport = (app: Express) => {
 	passport.use(new GoogleStrategy({
 		clientID: process.env['GOOGLE_CLIENT_ID'],
 		clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
@@ -24,7 +25,12 @@ const addPassport = () => {
 		done(null, user);
 	  });
 	
-	return passport
+    app.get('/login/google', passport.authenticate('google'));
+    app.get('/oauth2/redirect/google',
+      passport.authenticate('google', { failureRedirect: '/admin/login', failureMessage: true }),
+      function(req, res) {
+        res.redirect('/admin/queues');
+    });
 }
 
 export default addPassport

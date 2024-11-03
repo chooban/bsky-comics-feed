@@ -29,6 +29,7 @@
     "kysely": "^0.22.0",
     "multiformats": "^9.9.0",
     "passport": "^0.7.0",
+    "passport-atprotocol": "^0.1.1",
     "passport-google-oidc": "^0.1.0"
   },
   "devDependencies": {

@@ -14,8 +14,9 @@ import { Queue } from 'bullmq'
 import { createQueue } from './queue'
 import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
-import addPassport from './passport'
+// import addPassport from './passport'
 import session from 'express-session'
+import configureAtproto from './passport-atproto'
 
 export class FeedGenerator {
   public app: express.Application
@@ -48,7 +49,8 @@ export class FeedGenerator {
     app.use(passport.initialize({}))
     app.use(passport.session({}))
 
-    addPassport()
+    // addPassport(app)
+    configureAtproto(app, cfg)
 
     app.get('/admin/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
@@ -82,13 +84,6 @@ export class FeedGenerator {
     describeGenerator(server, ctx)
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
-    
-    app.get('/login/google', passport.authenticate('google'));
-    app.get('/oauth2/redirect/google',
-      passport.authenticate('google', { failureRedirect: '/admin/login', failureMessage: true }),
-      function(req, res) {
-        res.redirect('/admin/queues');
-    });
 
     app.use('/admin/queues', ensureLoggedIn({ redirectTo: '/admin/login' }), bullboard(ctx, '/admin/queues'))
 

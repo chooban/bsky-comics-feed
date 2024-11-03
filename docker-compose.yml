@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:latest
@@ -8,6 +6,19 @@ services:
       - 6379:6379
     networks:
       - app-network
+  ngrok:
+    image: ngrok/ngrok:latest
+    command:
+      - 'http'
+      - 'http://host.docker.internal:3000'
+      - '--url'
+      - ${FEEDGEN_HOSTNAME}
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    networks:
+      - app-network
+    ports:
+      - 4040:4040
 
   node-app:
     build:
