@@ -14,7 +14,7 @@ import { Queue } from 'bullmq'
 import { createQueue } from './queue'
 import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
-// import addPassport from './passport'
+import addPassport from './passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
 
