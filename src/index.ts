@@ -6,6 +6,7 @@ const run = async () => {
   const hostname = maybeStr(process.env.FEEDGEN_HOSTNAME) ?? 'example.com'
   const serviceDid =
     maybeStr(process.env.FEEDGEN_SERVICE_DID) ?? `did:web:${hostname}`
+
   const server = FeedGenerator.create({
     port: maybeInt(process.env.FEEDGEN_PORT) ?? 3000,
     listenhost: maybeStr(process.env.FEEDGEN_LISTENHOST) ?? 'localhost',
@@ -19,7 +20,11 @@ const run = async () => {
       maybeInt(process.env.FEEDGEN_SUBSCRIPTION_RECONNECT_DELAY) ?? 3000,
     hostname,
     serviceDid,
+    redisUrl: maybeStr(process.env.REDIS_URL) ?? 'redis://redis:6379',
+    redisIpvFamily: maybeInt(process.env.REDIS_IPV_FAMILY) ?? 4,
   })
+  
+  console.log(`Connecting to ${maybeStr(process.env.REDIS_URL)}`)
   await server.start()
   console.log(
     `🤖 running feed generator at http://${server.cfg.listenhost}:${server.cfg.port}`,

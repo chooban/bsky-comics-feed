@@ -1,10 +1,21 @@
+import { AppContext } from './config'
 import {
   OutputSchema as RepoEvent,
   isCommit,
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
+import { Queue } from 'bullmq'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
+  public queue: Queue
+  constructor(
+    public ctx: AppContext,
+    public service: string,
+  ) {
+    super(ctx.db, service)
+    this.queue = ctx.queue
+  }
+
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
@@ -13,9 +24,11 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     // This logs the text of every post off the firehose.
     // Just for fun :)
     // Delete before actually using
-    for (const post of ops.posts.creates) {
-      console.log(post.record.text)
-    }
+    // for (const post of ops.posts.creates) {
+    //   if (post.record.text.includes('https')) {
+    //     console.log(post.record.text)
+    //   }
+    // }
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
@@ -44,6 +57,15 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .values(postsToCreate)
         .onConflict((oc) => oc.doNothing())
         .execute()
+
+      postsToCreate.forEach((element) => {
+        if (this.queue) {
+          console.log('Queueing a job')
+          this.queue.add('newpost', { uri: element.uri, cid: element.cid })
+        } else {
+          console.log('No queue')
+        }
+      })
     }
   }
 }

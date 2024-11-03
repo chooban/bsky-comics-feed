@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+
+  node-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    container_name: node-app
+    volumes:
+      - ./:/usr/src/app/
+    working_dir: /usr/src/app
+    command: sh -c "yarn install && yarn nodemon src/index.ts"
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+    environment:
+      REDIS_URL: 'redis://redis:6379'
+      FEEDGEN_LISTENHOST: '0.0.0.0'
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

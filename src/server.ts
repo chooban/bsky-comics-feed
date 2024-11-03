@@ -9,6 +9,13 @@ import { createDb, Database, migrateToLatest } from './db'
 import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
+import bullboard from './bullboard'
+import { Queue } from 'bullmq'
+import { createQueue } from './queue'
+import { ensureLoggedIn } from 'connect-ensure-login'
+import passport from 'passport'
+import addPassport from './passport'
+import session from 'express-session'
 
 export class FeedGenerator {
   public app: express.Application
@@ -16,23 +23,39 @@ export class FeedGenerator {
   public db: Database
   public firehose: FirehoseSubscription
   public cfg: Config
+  public queue: Queue
 
   constructor(
     app: express.Application,
     db: Database,
     firehose: FirehoseSubscription,
     cfg: Config,
+    queue: Queue,
   ) {
     this.app = app
     this.db = db
     this.firehose = firehose
     this.cfg = cfg
+    this.queue = queue
   }
 
   static create(cfg: Config) {
     const app = express()
+
+    app.set('views', __dirname + '/views')
+    app.set('view engine', 'ejs')
+    app.use(session({ secret: 'keyboard cat', saveUninitialized: true, resave: true }));
+    app.use(passport.initialize({}))
+    app.use(passport.session({}))
+
+    addPassport()
+
+    app.get('/admin/login', (req, res) => {
+      res.render('login', { invalid: req.query.invalid === 'true' })
+    })
+
     const db = createDb(cfg.sqliteLocation)
-    const firehose = new FirehoseSubscription(db, cfg.subscriptionEndpoint)
+    const queue = createQueue(cfg, 'newposts')
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
@@ -52,13 +75,24 @@ export class FeedGenerator {
       db,
       didResolver,
       cfg,
+      queue,
     }
+    const firehose = new FirehoseSubscription(ctx, cfg.subscriptionEndpoint)
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
+    
+    app.get('/login/google', passport.authenticate('google'));
+    app.get('/oauth2/redirect/google',
+      passport.authenticate('google', { failureRedirect: '/admin/login', failureMessage: true }),
+      function(req, res) {
+        res.redirect('/admin/queues');
+    });
 
-    return new FeedGenerator(app, db, firehose, cfg)
+    app.use('/admin/queues', ensureLoggedIn({ redirectTo: '/admin/login' }), bullboard(ctx, '/admin/queues'))
+
+    return new FeedGenerator(app, db, firehose, cfg, queue)
   }
 
   async start(): Promise<http.Server> {
