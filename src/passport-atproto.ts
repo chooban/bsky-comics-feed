@@ -82,7 +82,8 @@ async function configureAtproto(app: Express, cfg: Config) {
 		if (currentDate <= expiryDate) {
 		  return done(null, user);
 		}
-  
+ 
+		console.log("Refreshing token")
 		strategy
 		  .refreshAccessToken(user)
 		  .then((updatedUser) => done(null, updatedUser))
@@ -98,7 +99,7 @@ async function configureAtproto(app: Express, cfg: Config) {
 		// passport.authenticate('atprotocol', { returnRawProfile: true }),
 		passport.authenticate('atprotocol'),
 		(req, res) => {
-		  res.redirect('/admin/queues');
+		  res.redirect('/');
 		},
 	  );
 
@@ -112,7 +113,7 @@ async function configureAtproto(app: Express, cfg: Config) {
 		});
 	  });
 	  
-	  app.get('/auth/atprotocol/revoke', ensureLoggedIn({ redirectTo: '/admin/login'}), (req, res) => {
+	  app.get('/auth/atprotocol/revoke', ensureLoggedIn({ redirectTo: '/login'}), (req, res) => {
 		oauthClient
 			//@ts-expect-error User is there
 		  .revoke(req.user.profile.did)

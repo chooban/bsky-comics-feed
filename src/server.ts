@@ -14,9 +14,11 @@ import { Queue } from 'bullmq'
 import { createQueue } from './queue'
 import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
-import addPassport from './passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
+import renderFeed from './pages/feed-list'
+import RedisStore from "connect-redis"
+import {createClient} from "redis"
 
 export class FeedGenerator {
   public app: express.Application
@@ -43,18 +45,30 @@ export class FeedGenerator {
   static create(cfg: Config) {
     const app = express()
 
+    const redisClient = createClient({
+      url: cfg.redisUrl, 
+    })
+
+    redisClient.connect().catch(console.error)
+    const redisStore = new RedisStore({
+      client: redisClient,
+      prefix: "myapp:",
+    })
+
     app.set('views', __dirname + '/views')
     app.set('view engine', 'ejs')
-    app.use(session({ secret: 'keyboard cat', saveUninitialized: true, resave: true }));
-    app.use(passport.initialize({}))
-    app.use(passport.session({}))
+    app.use(session({ 
+      store: redisStore,
+      secret: 'keyboard cat', 
+      saveUninitialized: true, 
+      resave: false, 
+    }));
+
+    app.use(passport.initialize())
+    app.use(passport.session())
 
     // addPassport(app)
     configureAtproto(app, cfg)
-
-    app.get('/admin/login', (req, res) => {
-      res.render('login', { invalid: req.query.invalid === 'true' })
-    })
 
     const db = createDb(cfg.sqliteLocation)
     const queue = createQueue(cfg, 'newposts')
@@ -85,7 +99,11 @@ export class FeedGenerator {
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
 
-    app.use('/admin/queues', ensureLoggedIn({ redirectTo: '/admin/login' }), bullboard(ctx, '/admin/queues'))
+    app.get('/login', (req, res) => {
+      res.render('login', { invalid: req.query.invalid === 'true' })
+    })
+    app.get('/', ensureLoggedIn({ redirectTo: '/login'}), renderFeed())
+    app.use('/queues', ensureLoggedIn({ redirectTo: '/login' }), bullboard(ctx, '/queues'))
 
     return new FeedGenerator(app, db, firehose, cfg, queue)
   }
