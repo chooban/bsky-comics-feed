@@ -2,4 +2,5 @@
 !src/
 !package.json
 !yarn.lock
+!bun.lockb
 !tsconfig.json

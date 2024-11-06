@@ -23,3 +23,4 @@ size = 'shared-cpu-1x'
 FEEDGEN_PORT = "3000"
 FEEDGEN_LISTENHOST = "0.0.0.0"
 REDIS_IPV_FAMILY = "6"
+FEEDGEN_HOSTNAME = "feed-generator-muddy-shape-7135.fly.dev"

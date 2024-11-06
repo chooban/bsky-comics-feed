@@ -21,7 +21,7 @@ async function configureAtproto(app: Express, cfg: Config) {
 	const ENDPOINT = `https://${cfg.hostname}`
 	
 	const clientMetadata = {
-		client_name: 'My Passport atproto OAuth App',
+		client_name: 'Crowdfunded Comics Custom Bluesky Feed',
 		client_uri: ENDPOINT,
 		client_id: `${ENDPOINT}/auth/atprotocol/client-metadata.json`,
 		logo_uri: `${ENDPOINT}/logo.png`,
