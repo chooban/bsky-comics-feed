@@ -1,6 +1,11 @@
+import { agent } from '../util/bsky'
+
 const renderFeed = () => {
-	return (req, res) => {
-		res.render('index')
+	return async (req, res) => {
+		const feeds = await agent.app.bsky.unspecced.getPopularFeedGenerators({
+			limit: 10,
+		  });
+		res.render('index', { feeds: feeds.data.feeds })
 	}
 }
 
