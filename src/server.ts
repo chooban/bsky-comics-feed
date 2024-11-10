@@ -17,8 +17,8 @@ import passport from 'passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
 import renderFeed from './pages/feed-list'
-import RedisStore from "connect-redis"
-import {createClient} from "redis"
+import RedisStore from 'connect-redis'
+import { createClient } from 'redis'
 
 export class FeedGenerator {
   public app: express.Application
@@ -46,23 +46,25 @@ export class FeedGenerator {
     const app = express()
 
     const redisClient = createClient({
-      url: cfg.redisUrl, 
+      url: cfg.redisUrl,
     })
 
     redisClient.connect().catch(console.error)
     const redisStore = new RedisStore({
       client: redisClient,
-      prefix: "myapp:",
+      prefix: 'myapp:',
     })
 
     app.set('views', __dirname + '/views')
     app.set('view engine', 'ejs')
-    app.use(session({ 
-      store: redisStore,
-      secret: 'keyboard cat', 
-      saveUninitialized: true, 
-      resave: false, 
-    }));
+    app.use(
+      session({
+        store: redisStore,
+        secret: 'keyboard cat',
+        saveUninitialized: true,
+        resave: false,
+      }),
+    )
 
     app.use(passport.initialize())
     app.use(passport.session())
@@ -71,7 +73,7 @@ export class FeedGenerator {
     configureAtproto(app, cfg)
 
     const db = createDb(cfg.sqliteLocation)
-    const queue = createQueue(cfg, 'newposts')
+    const queue = createQueue(cfg, db, 'newposts')
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
@@ -102,8 +104,12 @@ export class FeedGenerator {
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
     })
-    app.get('/', ensureLoggedIn({ redirectTo: '/login'}), renderFeed())
-    app.use('/queues', ensureLoggedIn({ redirectTo: '/login' }), bullboard(ctx, '/queues'))
+    app.get('/', ensureLoggedIn({ redirectTo: '/login' }), renderFeed())
+    app.use(
+      '/queues',
+      ensureLoggedIn({ redirectTo: '/login' }),
+      bullboard(ctx, '/queues'),
+    )
 
     return new FeedGenerator(app, db, firehose, cfg, queue)
   }

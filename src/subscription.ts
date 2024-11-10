@@ -5,6 +5,8 @@ import {
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 import { Queue } from 'bullmq'
+import { isExternal } from './lexicon/types/app/bsky/embed/external'
+import { RichText } from '@atproto/api'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   public queue: Queue
@@ -21,23 +23,25 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 
     const ops = await getOpsByType(evt)
 
-    // This logs the text of every post off the firehose.
-    // Just for fun :)
-    // Delete before actually using
-    // for (const post of ops.posts.creates) {
-    //   if (post.record.text.includes('https')) {
-    //     console.log(post.record.text)
-    //   }
-    // }
-
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
-        // only alf-related posts
-        return create.record.text.toLowerCase().includes('alf')
+        const rt = new RichText({
+          text: create.record.text,
+          facets: create.record.facets,
+        })
+        for (const segment of rt.segments()) {
+          if (segment.isLink()) {
+            console.log(segment.link?.uri)
+            if (segment.link?.uri.includes('x.com')) {
+              console.log(`Got one! ${segment.link?.uri}`)
+              return true
+            }
+          }
+        }
+        return false
       })
       .map((create) => {
-        // map alf-related posts to a db row
         return {
           uri: create.uri,
           cid: create.cid,
@@ -52,16 +56,9 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .execute()
     }
     if (postsToCreate.length > 0) {
-      await this.db
-        .insertInto('post')
-        .values(postsToCreate)
-        .onConflict((oc) => oc.doNothing())
-        .execute()
-
       postsToCreate.forEach((element) => {
         if (this.queue) {
-          console.log('Queueing a job')
-          this.queue.add('newpost', { uri: element.uri, cid: element.cid })
+          this.queue.add('newpost', { post: element })
         } else {
           console.log('No queue')
         }
