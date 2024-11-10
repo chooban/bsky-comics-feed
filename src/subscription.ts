@@ -5,7 +5,6 @@ import {
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 import { Queue } from 'bullmq'
-import { isExternal } from './lexicon/types/app/bsky/embed/external'
 import { RichText } from '@atproto/api'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
@@ -33,7 +32,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         for (const segment of rt.segments()) {
           if (segment.isLink()) {
             console.log(segment.link?.uri)
-            if (segment.link?.uri.includes('x.com')) {
+            if (segment.link?.uri.includes('kickstarter.com')) {
               console.log(`Got one! ${segment.link?.uri}`)
               return true
             }

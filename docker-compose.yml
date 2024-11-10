@@ -26,7 +26,8 @@ services:
       dockerfile: Dockerfile-dev
     container_name: node-app
     volumes:
-      - ./:/usr/src/app/
+      - ./src:/usr/src/app/src
+      - ./db/:/db/
     working_dir: /usr/src/app
     command: sh -c "yarn install && yarn nodemon src/index.ts"
     ports:
@@ -36,6 +37,12 @@ services:
     environment:
       REDIS_URL: 'redis://redis:6379'
       FEEDGEN_LISTENHOST: '0.0.0.0'
+      FEEDGEN_SQLITE_LOCATION: '/db/bskyfeed.db'
+      PERMITTED_USERS: ${PERMITTED_USERS}
+      PRIVATE_KEY_1: ${PRIVATE_KEY_1}
+      PRIVATE_KEY_2: ${PRIVATE_KEY_2}
+      PRIVATE_KEY_3: ${PRIVATE_KEY_3}
+
     networks:
       - app-network
 
