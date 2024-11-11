@@ -17,4 +17,13 @@ export const migrateToLatest = async (db: Database) => {
   if (error) throw error
 }
 
+export const clearOldJobs = async (db: Database) => {
+  await db
+    .updateTable('project')
+    .set({
+      isIndexing: 0,
+    })
+    .where('project.isIndexing', '=', 1)
+    .execute()
+}
 export type Database = Kysely<DatabaseSchema>

@@ -43,6 +43,7 @@ services:
       PRIVATE_KEY_1: ${PRIVATE_KEY_1}
       PRIVATE_KEY_2: ${PRIVATE_KEY_2}
       PRIVATE_KEY_3: ${PRIVATE_KEY_3}
+      APIFY_TOKEN: ${APIFY_TOKEN}
 
     networks:
       - app-network

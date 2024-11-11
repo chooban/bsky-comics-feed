@@ -20,6 +20,7 @@
     "@atproto/syntax": "^0.1.2",
     "@atproto/xrpc-server": "^0.6.0",
     "@bull-board/express": "^6.3.2",
+    "apify-client": "^2.10.0",
     "better-sqlite3": "^8.3.0",
     "bullmq": "^5.21.2",
     "connect-ensure-login": "^0.1.1",
