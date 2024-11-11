@@ -7,7 +7,7 @@ export type AppContext = {
   db: Database
   didResolver: DidResolver
   cfg: Config
-  queue: Queue
+  // queue: Queue
 }
 
 export type Config = {
@@ -38,26 +38,24 @@ const maybeInt = (val?: string) => {
 
 const maybeArray = (val?: string) => {
   if (!val) return []
-  
+
   const list = JSON.parse(val)
-   
+
   if (!Array.isArray(list)) {
-    throw Error("Not an array")
+    throw Error('Not an array')
   }
-  
+
   return list
 }
 export const buildConfig = (): Config => {
-
   dotenv.config()
   const hostname = maybeStr(process.env.FEEDGEN_HOSTNAME) ?? 'example.com'
   const serviceDid =
     maybeStr(process.env.FEEDGEN_SERVICE_DID) ?? `did:web:${hostname}`
 
-  const permittedUsers = maybeArray(process.env.PERMITTED_USERS) 
+  const permittedUsers = maybeArray(process.env.PERMITTED_USERS)
   if (permittedUsers.length == 0) {
-    throw new Error("Need a list of permitted users");
-    
+    throw new Error('Need a list of permitted users')
   }
   return {
     port: maybeInt(process.env.FEEDGEN_PORT) ?? 3000,

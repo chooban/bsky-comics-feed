@@ -11,7 +11,7 @@ import { AppContext, Config } from './config'
 import wellKnown from './well-known'
 import bullboard from './bullboard'
 import { Queue } from 'bullmq'
-import { createQueue } from './queue'
+import { createQueues } from './queue'
 import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
 import session from 'express-session'
@@ -72,7 +72,7 @@ export class FeedGenerator {
     configureAtproto(app, cfg)
 
     const db = createDb(cfg.sqliteLocation)
-    const queue = createQueue(cfg, db, 'newposts')
+    const queue = createQueues(cfg, db)
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
@@ -92,9 +92,12 @@ export class FeedGenerator {
       db,
       didResolver,
       cfg,
-      queue,
     }
-    const firehose = new FirehoseSubscription(ctx, cfg.subscriptionEndpoint)
+    const firehose = new FirehoseSubscription(
+      ctx,
+      cfg.subscriptionEndpoint,
+      queue[0],
+    )
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
     app.use(server.xrpc.router)
@@ -107,10 +110,10 @@ export class FeedGenerator {
     app.use(
       '/queues',
       ensureLoggedIn({ redirectTo: '/login' }),
-      bullboard(ctx, '/queues'),
+      bullboard('/queues', queue),
     )
 
-    return new FeedGenerator(app, db, firehose, cfg, queue)
+    return new FeedGenerator(app, db, firehose, cfg, queue[0])
   }
 
   async start(): Promise<http.Server> {

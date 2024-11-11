@@ -1,22 +1,20 @@
 import { createBullBoard } from '@bull-board/api'
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 import { ExpressAdapter } from '@bull-board/express'
-import { AppContext } from './config'
+import { Queue } from 'bullmq'
 
-const makeRouter = (ctx: AppContext, path: string) => {
+const makeRouter = (path: string, queues: Queue[]) => {
   const serverAdapter = new ExpressAdapter()
   serverAdapter.setBasePath(path)
 
+  const adapters = queues.map((q) => new BullMQAdapter(q))
+
   createBullBoard({
-    queues: [
-      new BullMQAdapter(ctx.queue),
-    ],
+    queues: adapters,
     serverAdapter: serverAdapter,
   })
 
-
   return serverAdapter.getRouter()
 }
-
 
 export default makeRouter

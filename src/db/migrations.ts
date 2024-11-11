@@ -16,6 +16,8 @@ migrations['001'] = {
       .addColumn('uri', 'varchar', (col) => col.notNull())
       .addColumn('title', 'varchar', (col) => col.notNull())
       .addColumn('category', 'varchar', (col) => col.notNull())
+      .addColumn('isIndexing', 'integer', (col) => col.defaultTo(0).notNull())
+      .addColumn('indexedAt', 'varchar')
       .execute()
     await db.schema
       .createTable('post')

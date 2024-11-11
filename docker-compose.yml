@@ -37,6 +37,7 @@ services:
     environment:
       REDIS_URL: 'redis://redis:6379'
       FEEDGEN_LISTENHOST: '0.0.0.0'
+      FEEDGEN_HOSTNAME: ${FEEDGEN_HOSTNAME}
       FEEDGEN_SQLITE_LOCATION: '/db/bskyfeed.db'
       PERMITTED_USERS: ${PERMITTED_USERS}
       PRIVATE_KEY_1: ${PRIVATE_KEY_1}

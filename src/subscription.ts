@@ -5,17 +5,17 @@ import {
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 import { Queue } from 'bullmq'
-import { RichText } from '@atproto/api'
 import { getLinks } from './util/records'
+import { NEW_POST_QUEUE } from './queue'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
-  public queue: Queue
   constructor(
     public ctx: AppContext,
     public service: string,
+    public queue: Queue,
   ) {
     super(ctx.db, service)
-    this.queue = ctx.queue
+    this.queue = queue
   }
 
   async handleEvent(evt: RepoEvent) {
@@ -46,7 +46,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     if (postsToCreate.length > 0) {
       postsToCreate.forEach((element) => {
         if (this.queue) {
-          this.queue.add('newpost', { post: element })
+          this.queue.add(NEW_POST_QUEUE, { post: element })
         } else {
           console.log('No queue')
         }

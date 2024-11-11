@@ -24,4 +24,6 @@ export type Project = {
   uri: string
   title: string
   category: string
+  indexedAt: string | null
+  isIndexing: number
 }
