@@ -4,6 +4,7 @@ import { Database } from '../db'
 import { agent } from '../util/bsky'
 import { AppBskyFeedDefs, AppBskyFeedPost } from '@atproto/api'
 import { createUUID, UUID } from '../types/uuid'
+import { getProjectDetails } from '../util/kickstarter'
 
 export const createQueue = (
   cfg: Config,
@@ -27,13 +28,14 @@ export const createQueue = (
 
     if (existingProject == undefined) {
       console.log(`Project not found, so creating a new one`)
+
       const project = await db
         .insertInto('project')
         .values({
           projectId: createUUID(),
           uri,
-          title: 'Title',
-          category: 'Category',
+          title: 'Unknown',
+          category: 'Unknown',
         })
         .returningAll()
         .executeTakeFirst()
