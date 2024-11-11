@@ -6,6 +6,7 @@ import {
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 import { Queue } from 'bullmq'
 import { RichText } from '@atproto/api'
+import { getLinks } from './util/records'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   public queue: Queue
@@ -24,28 +25,16 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
-      .filter((create) => {
-        const rt = new RichText({
-          text: create.record.text,
-          facets: create.record.facets,
-        })
-        for (const segment of rt.segments()) {
-          if (segment.isLink()) {
-            console.log(segment.link?.uri)
-            if (segment.link?.uri.includes('kickstarter.com')) {
-              console.log(`Got one! ${segment.link?.uri}`)
-              return true
-            }
-          }
-        }
-        return false
-      })
       .map((create) => {
         return {
           uri: create.uri,
           cid: create.cid,
+          links: getLinks(create.record),
           indexedAt: new Date().toISOString(),
         }
+      })
+      .filter((r) => {
+        return r.links.length > 0
       })
 
     if (postsToDelete.length > 0) {

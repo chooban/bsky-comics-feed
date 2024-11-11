@@ -3,6 +3,7 @@ import { Config } from '../config'
 import { Database } from '../db'
 import { agent } from '../util/bsky'
 import { AppBskyFeedDefs, AppBskyFeedPost } from '@atproto/api'
+import { createUUID, UUID } from '../types/uuid'
 
 export const createQueue = (
   cfg: Config,
@@ -16,6 +17,37 @@ export const createQueue = (
     },
   })
 
+  const findOrCreateProject = async (uri: string): Promise<UUID> => {
+    console.log(`Looking for ${uri}`)
+    const existingProject = await db
+      .selectFrom('project')
+      .selectAll('project')
+      .where('project.uri', '=', uri)
+      .executeTakeFirst()
+
+    if (existingProject == undefined) {
+      console.log(`Project not found, so creating a new one`)
+      const project = await db
+        .insertInto('project')
+        .values({
+          projectId: createUUID(),
+          uri,
+          title: 'Title',
+          category: 'Category',
+        })
+        .returningAll()
+        .executeTakeFirst()
+
+      if (project !== undefined) {
+        return project.projectId
+      } else {
+        throw new Error('Failed to write project')
+      }
+    } else {
+      console.log(`Found an existing project`)
+      return existingProject.projectId
+    }
+  }
   const worker = new Worker(
     queueName,
     async (job) => {
@@ -23,21 +55,32 @@ export const createQueue = (
         return
       }
 
-      const thread = await agent.getPostThread({ uri: job.data.post.uri })
-      if (!AppBskyFeedDefs.isThreadViewPost(thread.data.thread)) {
-        throw new Error('Expected a thread view post')
+      // For each link provided, check that it's a KS link,
+      // create a project, and link the posts to it
+      for (const l of job.data.post.links) {
+        const projectId = await findOrCreateProject(l)
+        console.log(`Found project with ID of ${projectId}`)
+        await db
+          .insertInto('post')
+          .values({
+            postId: createUUID(),
+            projectId: projectId,
+            uri: job.data.post.uri,
+            cid: job.data.post.cid,
+            indexedAt: job.data.post.indexedAt,
+          })
+          .onConflict((oc) => oc.doNothing())
+          .execute()
       }
-      const post = thread.data.thread.post
-      if (!AppBskyFeedPost.isRecord(post.record)) {
-        throw new Error('Expected a post with a record')
-      }
-      console.log(post.record.text)
 
-      await db
-        .insertInto('post')
-        .values({ ...job.data.post })
-        .onConflict((oc) => oc.doNothing())
-        .execute()
+      // const thread = await agent.getPostThread({ uri: job.data.post.uri })
+      // if (!AppBskyFeedDefs.isThreadViewPost(thread.data.thread)) {
+      //   throw new Error('Expected a thread view post')
+      // }
+      // const post = thread.data.thread.post
+      // if (!AppBskyFeedPost.isRecord(post.record)) {
+      //   throw new Error('Expected a post with a record')
+      // }
     },
     {
       connection: {

@@ -69,7 +69,6 @@ export class FeedGenerator {
     app.use(passport.initialize())
     app.use(passport.session())
 
-    // addPassport(app)
     configureAtproto(app, cfg)
 
     const db = createDb(cfg.sqliteLocation)
