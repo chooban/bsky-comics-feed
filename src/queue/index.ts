@@ -39,9 +39,19 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     console.log(`Job ${job!.id} has failed with ${err.message}`)
   })
 
-  projectsWorker.on('completed', (job) => {
-    console.log(`Projects job finished: ${job.data.projectId}`)
+  projectsWorker.on('failed', async (job) => {
+    console.log(`Project job failed: ${job?.data.projectId}`)
+
+    if (job?.data.projectId) {
+      await db
+        .updateTable('project')
+        .set({ isIndexing: 0 })
+        .where('project.projectId', '=', job?.data.projectId)
+    }
   })
+  // projectsWorker.on('completed', (job) => {
+  //   console.log(`Projects job finished: ${job.data.projectId}`)
+  // })
 
   return [postsQueue, projectsQueue]
 }

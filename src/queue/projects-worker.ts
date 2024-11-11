@@ -7,7 +7,6 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
   const projectsWorker = new Worker(
     KICKSTARTER_QUEUE,
     async (job) => {
-      console.log({ data: job.data })
       if (!job.data.projectId) {
         return
       }
