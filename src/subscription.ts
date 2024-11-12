@@ -6,16 +6,16 @@ import {
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 import { Queue } from 'bullmq'
 import { getLinks } from './util/records'
-import { NEW_POST_QUEUE } from './queue'
+import { NEW_POST_QUEUE, scheduleNewPostTask } from './queue'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   constructor(
     public ctx: AppContext,
     public service: string,
-    public queue: Queue,
+    // public newPostQueue: Queue,
   ) {
     super(ctx.db, service)
-    this.queue = queue
+    // this.newPostQueue = newPostQueue
   }
 
   async handleEvent(evt: RepoEvent) {
@@ -45,8 +45,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     }
 
     if (postsToCreate.length > 0) {
-      postsToCreate.forEach((element) => {
-        this.queue.add(NEW_POST_QUEUE, { post: element })
+      postsToCreate.forEach(async (element) => {
+        await scheduleNewPostTask(element)
       })
     }
   }

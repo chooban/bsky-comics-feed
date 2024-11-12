@@ -5,7 +5,13 @@ import { DidResolver, MemoryCache } from '@atproto/identity'
 import { createServer } from './lexicon'
 import feedGeneration from './methods/feed-generation'
 import describeGenerator from './methods/describe-generator'
-import { clearOldJobs, createDb, Database, migrateToLatest } from './db'
+import {
+  clearOldJobs,
+  createDb,
+  Database,
+  migrateToLatest,
+  scheduleMissedJobs,
+} from './db'
 import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
@@ -26,7 +32,7 @@ export class FeedGenerator {
   public db: Database
   public firehose: FirehoseSubscription
   public cfg: Config
-  public queue: Queue
+  public newPostQueue: Queue
 
   constructor(
     app: express.Application,
@@ -39,7 +45,7 @@ export class FeedGenerator {
     this.db = db
     this.firehose = firehose
     this.cfg = cfg
-    this.queue = queue
+    this.newPostQueue = queue
   }
 
   static create(cfg: Config) {
@@ -72,7 +78,7 @@ export class FeedGenerator {
     configureAtproto(app, cfg)
 
     const db = createDb(cfg.sqliteLocation)
-    const queue = createQueues(cfg, db)
+    const queues = createQueues(cfg, db)
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
@@ -93,11 +99,7 @@ export class FeedGenerator {
       didResolver,
       cfg,
     }
-    const firehose = new FirehoseSubscription(
-      ctx,
-      cfg.subscriptionEndpoint,
-      queue[0],
-    )
+    const firehose = new FirehoseSubscription(ctx, cfg.subscriptionEndpoint)
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
     app.use(server.xrpc.router)
@@ -110,15 +112,16 @@ export class FeedGenerator {
     app.use(
       '/queues',
       ensureLoggedIn({ redirectTo: '/login' }),
-      bullboard('/queues', queue),
+      bullboard('/queues', queues),
     )
 
-    return new FeedGenerator(app, db, firehose, cfg, queue[0])
+    return new FeedGenerator(app, db, firehose, cfg, queues[0])
   }
 
   async start(): Promise<http.Server> {
     await migrateToLatest(this.db)
     await clearOldJobs(this.db)
+    await scheduleMissedJobs(this.db)
     this.firehose.run(this.cfg.subscriptionReconnectDelay)
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')

@@ -5,7 +5,7 @@ import { ApifyClient } from 'apify-client'
 import { UUID } from '../types/uuid'
 
 export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
-  const setIndexing = (projectId: UUID, isIndexing: number) =>
+  const setIndexing = async (projectId: UUID, isIndexing: number) =>
     db
       .updateTable('project')
       .set({ isIndexing: isIndexing })
@@ -48,7 +48,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
         return
       }
 
-      console.log(`Kicking off search for ${projectQuery}`)
+      console.log(`Kicking off search for ${projectQuery.join(' ')}`)
       const client = new ApifyClient({
         token: process.env.APIFY_TOKEN,
       })
@@ -57,7 +57,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       const { defaultDatasetId } = await client
         .actor('qbie/kickstarter-scraper')
         .call(
-          { query: projectQuery },
+          { query: projectQuery.join(' ') },
           {
             waitSecs: 120,
             maxItems: 10,
@@ -67,6 +67,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       const { items } = await client.dataset(defaultDatasetId).listItems()
 
       for (const data of items) {
+        console.log(`Comparing ${existingProject.uri} with ${data.url}`)
         if (data.url !== existingProject.uri) {
           continue
         }
@@ -82,6 +83,8 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
           })
           .where('project.projectId', '=', existingProject.projectId)
           .execute()
+
+        break
       }
 
       // Either way, we're done indexing
