@@ -17,7 +17,8 @@ min_machines_running = 0
 processes = ['app']
 
 [[vm]]
-size = 'shared-cpu-1x'
+size = 'shared-cpu-2x'
+memory = '512mb'
 
 [env]
 FEEDGEN_PORT = "3000"

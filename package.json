@@ -10,7 +10,8 @@
     "publishFeed": "ts-node scripts/publishFeedGen.ts",
     "unpublishFeed": "ts-node scripts/unpublishFeedGen.ts",
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "backup-db": "flyctl ssh sftp get -a feed-generator-muddy-shape-7135 /data/comics-beta.db ~/Downloads/feed-generator-muddy-shape-7135-app-name_$(date +‘%d_%m_%Y’).db"
   },
   "dependencies": {
     "@atproto/api": "^0.6.20",
