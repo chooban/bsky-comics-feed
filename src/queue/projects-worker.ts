@@ -60,24 +60,22 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
           { query: projectQuery },
           {
             waitSecs: 120,
-            maxItems: 1,
+            maxItems: 10,
           },
         )
 
       const { items } = await client.dataset(defaultDatasetId).listItems()
-      const data = items[0]
 
-      if (items[0].url !== existingProject.uri) {
-        console.log(`Found project doesn't seem to match`)
-        await setIndexing(existingProject.projectId, 0)
-      } else {
+      for (const data of items) {
+        if (data.url !== existingProject.uri) {
+          continue
+        }
         console.log(
           `Setting project category and title: ${data.categoryName}, ${data.title}`,
         )
         await db
           .updateTable('project')
           .set({
-            isIndexing: 0,
             category: data.categoryName as string,
             title: data.name as string,
             indexedAt: new Date().toISOString(),
@@ -85,6 +83,9 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
           .where('project.projectId', '=', existingProject.projectId)
           .execute()
       }
+
+      // Either way, we're done indexing
+      await setIndexing(existingProject.projectId, 0)
     },
     config,
   )

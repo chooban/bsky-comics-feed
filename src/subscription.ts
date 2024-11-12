@@ -43,13 +43,10 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .where('uri', 'in', postsToDelete)
         .execute()
     }
+
     if (postsToCreate.length > 0) {
       postsToCreate.forEach((element) => {
-        if (this.queue) {
-          this.queue.add(NEW_POST_QUEUE, { post: element })
-        } else {
-          console.log('No queue')
-        }
+        this.queue.add(NEW_POST_QUEUE, { post: element })
       })
     }
   }
