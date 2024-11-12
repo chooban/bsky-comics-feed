@@ -9,6 +9,19 @@ export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
     const feedUri = new AtUri(params.feed)
     const algo = algos[feedUri.rkey]
+
+    console.log({ feedUri })
+    console.log({
+      publisherDid: ctx.cfg.publisherDid,
+      collection: feedUri.collection,
+      algo: feedUri.rkey,
+      isAlgo: !!algo,
+    })
+    console.log(`Hostname match: ${feedUri.hostname == ctx.cfg.publisherDid}`)
+    console.log(
+      `Collection match: ${feedUri.collection == 'app.bsky.feed.generator'}`,
+    )
+    console.log(`Is an algo?: ${!!algo}`)
     if (
       feedUri.hostname !== ctx.cfg.publisherDid ||
       feedUri.collection !== 'app.bsky.feed.generator' ||

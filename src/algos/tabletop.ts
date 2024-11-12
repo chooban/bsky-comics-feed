@@ -2,18 +2,14 @@ import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
 
 // max 15 chars
-export const shortname = 'cfcomics'
+export const shortname = 'cfttg'
 
 export const handler = async (ctx: AppContext, params: QueryParams) => {
   let builder = ctx.db
     .selectFrom('post')
     .innerJoin('project', 'project.projectId', 'post.projectId')
     .selectAll('post')
-    .where((eb) =>
-      eb
-        .orWhere('project.category', '=', 'Comic Books')
-        .orWhere('project.category', '=', 'Graphic Novels'),
-    )
+    .where((eb) => eb.orWhere('project.category', '=', 'Tabletop Games'))
     .orderBy('indexedAt', 'desc')
     .orderBy('cid', 'desc')
     .limit(params.limit)

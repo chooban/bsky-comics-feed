@@ -37,6 +37,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
         projectUrlComponents.length - 1
       ].replaceAll('-', ' ')
 
+      console.log(`Kicking off search for ${projectQuery}`)
       const client = new ApifyClient({
         token: process.env.APIFY_TOKEN,
       })
