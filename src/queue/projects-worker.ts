@@ -3,6 +3,7 @@ import { KICKSTARTER_QUEUE } from '.'
 import { Database } from '../db'
 import { ApifyClient } from 'apify-client'
 import { UUID } from '../types/uuid'
+import { canonicalizeKickstarterUrl } from '../util/kickstarter'
 
 export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
   const setIndexing = async (projectId: UUID, isIndexing: number) =>
@@ -32,11 +33,17 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
         return
       }
 
-      console.log(`Should look up info for ${existingProject.uri}`)
+      const uri = canonicalizeKickstarterUrl(existingProject.uri)
+
+      if (!uri) {
+        console.log(`Could not determine project to look up`)
+        return
+      }
+      console.log(`Should look up info for ${uri}`)
 
       await setIndexing(existingProject.projectId, 1)
 
-      const projectUrlComponents = existingProject.uri.split('/')
+      const projectUrlComponents = uri.split('/')
       const projectQuery =
         projectUrlComponents[projectUrlComponents.length - 1].split('-')
 
@@ -55,7 +62,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
 
       // Starts an actor and waits for it to finish.
       const { defaultDatasetId } = await client
-        .actor('qbie/kickstarter-scraper')
+        .actor('chooban/kickstarter-search-apify')
         .call(
           { query: projectQuery.join(' ') },
           {
@@ -67,8 +74,8 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       const { items } = await client.dataset(defaultDatasetId).listItems()
 
       for (const data of items) {
-        console.log(`Comparing ${existingProject.uri} with ${data.url}`)
-        if (data.url !== existingProject.uri) {
+        console.log(`Comparing ${uri} with ${data.url}`)
+        if (data.url !== uri) {
           continue
         }
         console.log(
@@ -79,6 +86,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
           .set({
             category: data.categoryName as string,
             title: data.name as string,
+            uri,
             indexedAt: new Date().toISOString(),
           })
           .where('project.projectId', '=', existingProject.projectId)

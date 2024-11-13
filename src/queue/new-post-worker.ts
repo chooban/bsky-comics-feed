@@ -16,7 +16,15 @@ export const newPostsWorker = (db: Database, config: WorkerOptions) => {
       // create a project, and link the posts to it
       const projectIds: UUID[] = []
       for (const l of job.data.post.links) {
+        if (!(l as string).includes('kickstarter.com')) {
+          continue
+        }
         const projectId = await findOrCreateProject(db, l)
+        if (!projectId) {
+          console.log('Could not determine a project to index')
+          continue
+        }
+
         console.log(`Found project with ID of ${projectId}`)
 
         await db
