@@ -7,8 +7,12 @@ import { ids } from '../src/lexicon/lexicons'
 const run = async () => {
   dotenv.config()
 
-  if (!process.env.FEEDGEN_SERVICE_DID && !process.env.PROD_FEEDGEN_HOSTNAME) {
+  if (!process.env.FEEDGEN_SERVICE_DID && !process.env.FEEDGEN_HOSTNAME) {
     throw new Error('Please provide a hostname in the .env file')
+  }
+
+  if (!process.env.APP_PASSWORD) {
+    throw new Error('Please provide an app password in the .env file')
   }
 
   const answers = await inquirer.prompt([
@@ -18,11 +22,11 @@ const run = async () => {
       message: 'Enter your Bluesky handle:',
       required: true,
     },
-    {
-      type: 'password',
-      name: 'password',
-      message: 'Enter your Bluesky password (preferably an App Password):',
-    },
+    // {
+    //   type: 'password',
+    //   name: 'password',
+    //   message: 'Enter your Bluesky password (preferably an App Password):',
+    // },
     {
       type: 'input',
       name: 'service',
@@ -60,7 +64,7 @@ const run = async () => {
 
   const {
     handle,
-    password,
+    // password,
     recordName,
     displayName,
     description,
@@ -69,8 +73,9 @@ const run = async () => {
   } = answers
 
   const feedGenDid =
-    process.env.FEEDGEN_SERVICE_DID ??
-    `did:web:${process.env.PROD_FEEDGEN_HOSTNAME}`
+    process.env.FEEDGEN_SERVICE_DID ?? `did:web:${process.env.FEEDGEN_HOSTNAME}`
+
+  const password = process.env.APP_PASSWORD
 
   // only update this if in a test environment
   const agent = new AtpAgent({

@@ -24,7 +24,7 @@ memory = '1024mb'
 FEEDGEN_PORT = "3000"
 FEEDGEN_LISTENHOST = "0.0.0.0"
 REDIS_IPV_FAMILY = "6"
-FEEDGEN_HOSTNAME = "feed-generator-muddy-shape-7135.fly.dev"
+FEEDGEN_HOSTNAME = "bskyfeeds.rosshendry.com"
 FEEDGEN_SQLITE_LOCATION = "/data/comics-beta.db"
 FEEDGEN_PUBLISHER_DID= "did:plc:2n2izph6uhty5uhdx7l32p67"
 
