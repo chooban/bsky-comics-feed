@@ -1,4 +1,5 @@
 export const canonicalizeKickstarterUrl = (url: string): string | null => {
+  console.log(`Canonicalizing ${url}`)
   const u = new URL(url)
   if (u.pathname.length === 1) {
     // Was just a link to kickstarter
@@ -10,5 +11,8 @@ export const canonicalizeKickstarterUrl = (url: string): string | null => {
     // Should contain projects, a username, and a project slug
     return null
   }
-  return `${u.origin}${urlParts.slice(0, 3).join('/')}`
+  const newUri = `${u.origin}${urlParts.slice(0, 4).join('/')}`
+  console.log(`Returning ${newUri}`)
+
+  return newUri
 }

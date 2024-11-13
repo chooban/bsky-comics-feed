@@ -4,6 +4,7 @@ import { Database } from '../db'
 import { ApifyClient } from 'apify-client'
 import { UUID } from '../types/uuid'
 import { canonicalizeKickstarterUrl } from '../util/kickstarter'
+import { UNKNOWN } from '../db/projects'
 
 export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
   const setIndexing = async (projectId: UUID, isIndexing: number) =>
@@ -41,6 +42,29 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       }
       console.log(`Should look up info for ${uri}`)
 
+      const existingByUri = await db
+        .selectFrom('project')
+        .selectAll('project')
+        .where('project.uri', '=', uri)
+        .where('project.indexedAt', 'is not', null)
+        .executeTakeFirst()
+
+      if (existingByUri !== undefined) {
+        console.log(`Found a matching project`)
+        await db
+          .updateTable('project')
+          .set({
+            uri,
+            category: existingByUri.category,
+            title: existingByUri.title,
+            indexedAt: new Date().toISOString(),
+          })
+          .where('project.projectId', '=', existingProject.projectId)
+          .execute()
+
+        return
+      }
+
       await setIndexing(existingProject.projectId, 1)
 
       const projectUrlComponents = uri.split('/')
@@ -73,30 +97,19 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
 
       const { items } = await client.dataset(defaultDatasetId).listItems()
 
-      for (const data of items) {
-        console.log(`Comparing ${uri} with ${data.url}`)
-        if (data.url !== uri) {
-          continue
-        }
-        console.log(
-          `Setting project category and title: ${data.categoryName}, ${data.title}`,
-        )
-        await db
-          .updateTable('project')
-          .set({
-            category: data.categoryName as string,
-            title: data.name as string,
-            uri,
-            indexedAt: new Date().toISOString(),
-          })
-          .where('project.projectId', '=', existingProject.projectId)
-          .execute()
-
-        break
-      }
-
-      // Either way, we're done indexing
-      await setIndexing(existingProject.projectId, 0)
+      const matching = items.find((d) => d.url === uri)
+      console.log(`Found matching result?: ${!!matching}`)
+      await db
+        .updateTable('project')
+        .set({
+          category: (matching?.categoryName as string) ?? UNKNOWN,
+          title: (matching?.name as string) ?? UNKNOWN,
+          uri,
+          indexedAt: new Date().toISOString(),
+          isIndexing: 0,
+        })
+        .where('project.projectId', '=', existingProject.projectId)
+        .execute()
     },
     config,
   )
