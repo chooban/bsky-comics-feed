@@ -3,6 +3,7 @@ import { NEW_POST_QUEUE } from '.'
 import { findOrCreateProject } from '../db/projects'
 import { Database } from '../db'
 import { createUUID, UUID } from '../types/uuid'
+import { isKickstarterUrl } from '../util/kickstarter'
 
 export const newPostsWorker = (db: Database, config: WorkerOptions) => {
   const postsWorker = new Worker<any, UUID[]>(
@@ -16,7 +17,7 @@ export const newPostsWorker = (db: Database, config: WorkerOptions) => {
       // create a project, and link the posts to it
       const projectIds: UUID[] = []
       for (const l of job.data.post.links) {
-        if (!(l as string).includes('kickstarter.com')) {
+        if (!isKickstarterUrl(l)) {
           continue
         }
         const projectId = await findOrCreateProject(db, l)

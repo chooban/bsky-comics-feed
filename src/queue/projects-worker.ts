@@ -24,20 +24,18 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
         .selectFrom('project')
         .selectAll('project')
         .where('project.projectId', '=', job.data.projectId)
+        .where('project.isIndexing', '=', 0)
+        .where('project.indexedAt', 'is not', null)
         .executeTakeFirst()
 
       if (existingProject == undefined) {
-        console.log(`Could not find project with ID: ${job.data.projectId}`)
-        return
-      } else if (
-        existingProject.isIndexing ||
-        existingProject.indexedAt !== null
-      ) {
-        console.log(`Project already indexed, or duplicate job`)
+        console.log(
+          `Could not find project suitable for indexing with ID: ${job.data.projectId}`,
+        )
         return
       }
 
-      const uri = canonicalizeKickstarterUrl(existingProject.uri)
+      const uri = await canonicalizeKickstarterUrl(existingProject.uri)
 
       if (!uri) {
         console.log(`Could not determine project to look up`)
