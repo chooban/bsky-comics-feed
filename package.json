@@ -28,6 +28,7 @@
     "connect-redis": "^7.1.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-prom-bundle": "^8.0.0",
     "express-session": "^1.18.1",
     "kysely": "^0.22.0",
     "multiformats": "^9.9.0",

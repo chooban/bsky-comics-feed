@@ -1,6 +1,7 @@
 import http from 'http'
 import events from 'events'
 import express from 'express'
+import promBundle from 'express-prom-bundle'
 import { DidResolver, MemoryCache } from '@atproto/identity'
 import { createServer } from './lexicon'
 import feedGeneration from './methods/feed-generation'
@@ -50,6 +51,19 @@ export class FeedGenerator {
 
   static create(cfg: Config) {
     const app = express()
+    const metricsMiddleware = promBundle({
+      includeMethod: true,
+      includePath: true,
+      includeStatusCode: true,
+      includeUp: true,
+      customLabels: {
+        project_name: 'bsky_feeds',
+      },
+      promClient: {
+        collectDefaultMetrics: {},
+      },
+    })
+    app.use(metricsMiddleware)
 
     const redisClient = createClient({
       url: cfg.redisUrl,
