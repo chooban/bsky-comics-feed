@@ -63,7 +63,6 @@ export class FeedGenerator {
         collectDefaultMetrics: {},
       },
     })
-    app.use(metricsMiddleware)
 
     const redisClient = createClient({
       url: cfg.redisUrl,
@@ -116,8 +115,11 @@ export class FeedGenerator {
     const firehose = new FirehoseSubscription(ctx, cfg.subscriptionEndpoint)
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
-    app.use(server.xrpc.router)
+
     app.use(wellKnown(ctx))
+
+    app.use(metricsMiddleware)
+    app.use(server.xrpc.router)
 
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })

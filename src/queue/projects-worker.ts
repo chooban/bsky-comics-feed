@@ -74,7 +74,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       const projectQuery =
         projectUrlComponents[projectUrlComponents.length - 1].split('-')
 
-      if (projectQuery.length <= 1) {
+      if (projectQuery.length < 1) {
         console.log(
           `Very odd looking query. Skipping: ${projectQuery.join('-')}`,
         )

@@ -17,7 +17,7 @@ min_machines_running = 1
 processes = ['app']
 
 [[vm]]
-size = 'shared-cpu-4x'
+size = 'shared-cpu-2x'
 memory = '1024mb'
 
 [env]
@@ -28,9 +28,12 @@ FEEDGEN_HOSTNAME = "bskyfeeds.rosshendry.com"
 FEEDGEN_SQLITE_LOCATION = "/data/comics-beta.db"
 FEEDGEN_PUBLISHER_DID= "did:plc:2n2izph6uhty5uhdx7l32p67"
 
+[metrics]
+port = 3000
+path = "/metrics"
 
 [mounts]
-  source = "cfcdb"
-  destination = "/data"
+source = "cfcdb"
+destination = "/data"
 
 
