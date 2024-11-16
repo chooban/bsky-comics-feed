@@ -29,7 +29,10 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       if (existingProject == undefined) {
         console.log(`Could not find project with ID: ${job.data.projectId}`)
         return
-      } else if (existingProject.isIndexing) {
+      } else if (
+        existingProject.isIndexing ||
+        existingProject.indexedAt !== null
+      ) {
         console.log(`Project already indexed, or duplicate job`)
         return
       }

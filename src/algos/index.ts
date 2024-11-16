@@ -3,14 +3,22 @@ import {
   QueryParams,
   OutputSchema as AlgoOutput,
 } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
-import * as comics from './comics'
-import * as tabletop from './tabletop'
+import { buildFeed } from './kickstarter-algo'
 
 type AlgoHandler = (ctx: AppContext, params: QueryParams) => Promise<AlgoOutput>
 
+const comicsCategories = [
+  'Comic Books',
+  'Graphic Novels',
+  'Webcomics',
+  'Comics',
+]
+
+const tabletopGames = ['Tabletop Games']
+
 const algos: Record<string, AlgoHandler> = {
-  [comics.shortname]: comics.handler,
-  [tabletop.shortname]: tabletop.handler,
+  cfcomics: buildFeed(comicsCategories),
+  cfttg: buildFeed(tabletopGames),
 }
 
 export default algos
