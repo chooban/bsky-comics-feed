@@ -76,7 +76,11 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
         console.log(
           `Very odd looking query. Skipping: ${projectQuery.join('-')}`,
         )
-        await setIndexing(existingProject.projectId, 0)
+        await db
+          .updateTable('project')
+          .set({ isIndexing: 0, indexedAt: new Date().toISOString() })
+          .where('project.projectId', '=', existingProject.projectId)
+          .execute()
         return
       }
 
@@ -99,7 +103,6 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
       const { items } = await client.dataset(defaultDatasetId).listItems()
 
       const matching = items.find((d) => d.url === uri)
-      console.log(`Found matching result?: ${!!matching}`)
       await db
         .updateTable('project')
         .set({
