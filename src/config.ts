@@ -1,13 +1,11 @@
 import { Database } from './db'
 import { DidResolver } from '@atproto/identity'
-import { Queue } from 'bullmq'
 import dotenv from 'dotenv'
 
 export type AppContext = {
   db: Database
   didResolver: DidResolver
   cfg: Config
-  // queue: Queue
 }
 
 export type Config = {

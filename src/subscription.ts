@@ -4,9 +4,8 @@ import {
   isCommit,
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
-import { Queue } from 'bullmq'
 import { getKickstarterLinks } from './util/records'
-import { NEW_POST_QUEUE, scheduleNewPostTask } from './queue'
+import { scheduleNewPostTask } from './queue'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   constructor(
@@ -29,6 +28,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
           cid: create.cid,
           links: getKickstarterLinks(create.record),
           indexedAt: new Date().toISOString(),
+          createdAt: create.record.createdAt,
         }
       })
       .filter((r) => {

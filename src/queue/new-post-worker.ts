@@ -5,8 +5,20 @@ import { Database } from '../db'
 import { createUUID, UUID } from '../types/uuid'
 import { isKickstarterUrl } from '../util/kickstarter'
 
+export type NewPost = {
+  uri: string
+  cid: string
+  links: string[]
+  indexedAt: string
+  createdAt: string
+}
+
+export type NewPostTask = {
+  post: NewPost
+}
+
 export const newPostsWorker = (db: Database, config: WorkerOptions) => {
-  const postsWorker = new Worker<any, UUID[]>(
+  const postsWorker = new Worker<NewPostTask, UUID[]>(
     NEW_POST_QUEUE,
     async (job) => {
       if (!job.data.post) {
@@ -36,6 +48,7 @@ export const newPostsWorker = (db: Database, config: WorkerOptions) => {
             uri: job.data.post.uri,
             cid: job.data.post.cid,
             indexedAt: job.data.post.indexedAt,
+            createdAt: job.data.post.createdAt,
           })
           .onConflict((oc) => oc.doNothing())
           .execute()

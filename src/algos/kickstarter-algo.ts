@@ -1,6 +1,5 @@
 import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
-import { getDefaultAutoSelectFamilyAttemptTimeout } from 'net'
 
 export const buildFeed = (categories: string[]) => {
   return async (ctx: AppContext, params: QueryParams) => {
@@ -12,7 +11,7 @@ export const buildFeed = (categories: string[]) => {
       .innerJoin('project', 'project.projectId', 'post.projectId')
       .selectAll('post')
       .where('project.category', 'in', categories)
-      .where('post.indexedAt', '>', dateLimit.toISOString())
+      .where('post.createdAt', '>', dateLimit.toISOString())
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
       .limit(params.limit)

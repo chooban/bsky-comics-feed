@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq'
 import { Config } from '../config'
 import { Database } from '../db'
-import { newPostsWorker } from './new-post-worker'
+import { NewPost, newPostsWorker } from './new-post-worker'
 import { newProjectsWorker } from './projects-worker'
 import { UUID } from '../types/uuid'
 
@@ -11,7 +11,7 @@ export const KICKSTARTER_QUEUE = 'projects'
 let postsQueue: Queue | undefined = undefined
 let projectsQueue: Queue | undefined = undefined
 
-export const scheduleNewPostTask = async (post: any) => {
+export const scheduleNewPostTask = async (post: NewPost) => {
   if (postsQueue === undefined) {
     throw new Error('Posts queue is undefined')
   }

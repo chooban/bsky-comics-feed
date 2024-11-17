@@ -41,3 +41,19 @@ migrations['001'] = {
     await db.schema.dropTable('project').execute()
   },
 }
+
+migrations['002'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .alterTable('post')
+      .addColumn('createdAt', 'varchar', (col) =>
+        col.defaultTo('foo').notNull(),
+      )
+      .execute()
+
+    await sql`UPDATE post SET createdAt = indexedAt`.execute(db)
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.alterTable('post').dropColumn('createdAt').execute()
+  },
+}
