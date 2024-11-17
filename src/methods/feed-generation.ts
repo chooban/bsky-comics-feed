@@ -4,6 +4,7 @@ import { AppContext } from '../config'
 import algos from '../algos'
 import { validateAuth } from '../auth'
 import { AtUri } from '@atproto/syntax'
+import { countFeedRequest } from '../metrics'
 
 export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
@@ -15,6 +16,12 @@ export default function (server: Server, ctx: AppContext) {
       feedUri.collection !== 'app.bsky.feed.generator' ||
       !algo
     ) {
+      console.log(`Bad feed request`)
+      console.log(`${feedUri.hostname} !== ${ctx.cfg.publisherDid}?`)
+      console.log(`${feedUri.collection} !== app.bsky.feed.generator?`)
+      console.log(`!algo (${feedUri.rkey})? ${!algo}`)
+      console.log(`${Object.keys(algos)}`)
+
       throw new InvalidRequestError(
         'Unsupported algorithm',
         'UnsupportedAlgorithm',
@@ -31,6 +38,8 @@ export default function (server: Server, ctx: AppContext) {
      */
 
     const body = await algo(ctx, params)
+    countFeedRequest(feedUri.rkey)
+
     return {
       encoding: 'application/json',
       body: body,
