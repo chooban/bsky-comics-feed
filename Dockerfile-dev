@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 RUN apk update && apk upgrade --no-cache
 RUN apk add --no-cache sqlite python3 make 
 
-COPY package.json yarn.lock tsconfig.json ./
+COPY package.json yarn.lock tsconfig.json feeds.yml ./
 RUN yarn install --frozen-lockfile
 
 # Expose the application's port

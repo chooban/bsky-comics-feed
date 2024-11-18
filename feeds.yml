@@ -1,0 +1,22 @@
+feeds:
+  cfcomics:
+    title: Crowdfunded Comics
+    description: Posts about comics and graphic novels being crowdfunded on Kickstarter
+    categories:
+      - Comic Books
+      - Graphic Novels
+      - Webcomics
+      - Comics
+  cfttg:
+    title: Board Games and RPGs
+    description: Posts about tabletop games and RPGs being crowdfunded on Kickstarter.
+    categories:
+      - Tabletop Games
+      - Games
+  cfvideogames:
+    title: Crowdfunded Video Games
+    description: Posts about video games and hardware being crowdfunded on Kickstarter.
+    categories:
+      - Video Games
+      - Gaming Hardware
+      - Games

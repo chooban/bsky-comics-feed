@@ -1,15 +1,15 @@
 import { InvalidRequestError } from '@atproto/xrpc-server'
 import { Server } from '../lexicon'
 import { AppContext } from '../config'
-import algos from '../algos'
 import { validateAuth } from '../auth'
 import { AtUri } from '@atproto/syntax'
 import { countFeedRequest } from '../metrics'
+import { buildFeed } from '../algos/kickstarter-algo'
 
 export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
     const feedUri = new AtUri(params.feed)
-    const algo = algos[feedUri.rkey]
+    const algo = ctx.cfg.feeds[feedUri.rkey]
 
     if (
       feedUri.hostname !== ctx.cfg.publisherDid ||
@@ -20,7 +20,7 @@ export default function (server: Server, ctx: AppContext) {
       console.log(`${feedUri.hostname} !== ${ctx.cfg.publisherDid}?`)
       console.log(`${feedUri.collection} !== app.bsky.feed.generator?`)
       console.log(`!algo (${feedUri.rkey})? ${!algo}`)
-      console.log(`${Object.keys(algos)}`)
+      console.log(`${Object.keys(ctx.cfg.feeds)}`)
 
       throw new InvalidRequestError(
         'Unsupported algorithm',
@@ -32,16 +32,21 @@ export default function (server: Server, ctx: AppContext) {
      *
      */
 
-    const body = await algo(ctx, params)
-    const requesterDid = await validateAuth(
-      req,
-      ctx.cfg.serviceDid,
-      ctx.didResolver,
-    )
-    if (!ctx.cfg.permittedUsers.includes(requesterDid)) {
-      countFeedRequest(feedUri.rkey)
-    } else {
-      console.log('Not counting feed request')
+    const body = await buildFeed(algo.categories)(ctx, params)
+
+    try {
+      const requesterDid = await validateAuth(
+        req,
+        ctx.cfg.serviceDid,
+        ctx.didResolver,
+      )
+      if (!ctx.cfg.permittedUsers.includes(requesterDid)) {
+        countFeedRequest(feedUri.rkey)
+      } else {
+        console.log('Not counting feed request')
+      }
+    } catch (e) {
+      console.log(`Error authenticating user: ${e}`)
     }
 
     return {

@@ -1,6 +1,9 @@
 import { Database } from './db'
 import { DidResolver } from '@atproto/identity'
 import dotenv from 'dotenv'
+import * as yaml from 'js-yaml'
+import * as fs from 'fs'
+import * as path from 'path'
 
 export type AppContext = {
   db: Database
@@ -20,6 +23,14 @@ export type Config = {
   redisUrl: string
   redisIpvFamily: number
   permittedUsers: string[]
+  feeds: Record<string, Feed>
+}
+
+export type Feed = {
+  key: string
+  title: string
+  description: string
+  categories: string[]
 }
 
 const maybeStr = (val?: string) => {
@@ -45,8 +56,38 @@ const maybeArray = (val?: string) => {
 
   return list
 }
+
+const buildFeedConfig = (
+  records: Record<string, unknown>,
+): Record<string, Feed> => {
+  const feeds: Record<string, Feed> = {}
+
+  if (records['feeds']) {
+    const rawData = records['feeds']
+    if (rawData instanceof Object) {
+      for (const k in rawData) {
+        const f: Feed = {
+          key: k,
+          title: rawData[k]['title'] as string,
+          description: rawData[k]['description'] as string,
+          categories: rawData[k]['categories'],
+        }
+        feeds[k] = f
+      }
+    }
+  }
+
+  return feeds
+}
+
 export const buildConfig = (): Config => {
   dotenv.config()
+
+  const fileContents = fs.readFileSync(__dirname + path.sep + '../feeds.yml')
+  const data = yaml.load(fileContents) as Record<string, unknown>
+
+  const feedsConfig = buildFeedConfig(data)
+
   const hostname = maybeStr(process.env.FEEDGEN_HOSTNAME) ?? 'example.com'
   const serviceDid =
     maybeStr(process.env.FEEDGEN_SERVICE_DID) ?? `did:web:${hostname}`
@@ -71,5 +112,6 @@ export const buildConfig = (): Config => {
     redisUrl: maybeStr(process.env.REDIS_URL) ?? 'redis://redis:6379',
     redisIpvFamily: maybeInt(process.env.REDIS_IPV_FAMILY) ?? 4,
     permittedUsers,
+    feeds: feedsConfig,
   }
 }
