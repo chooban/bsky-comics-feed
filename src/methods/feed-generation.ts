@@ -30,15 +30,19 @@ export default function (server: Server, ctx: AppContext) {
     /**
      * Example of how to check auth if giving user-specific results:
      *
-     * const requesterDid = await validateAuth(
-     *   req,
-     *   ctx.cfg.serviceDid,
-     *   ctx.didResolver,
-     * )
      */
 
     const body = await algo(ctx, params)
-    countFeedRequest(feedUri.rkey)
+    const requesterDid = await validateAuth(
+      req,
+      ctx.cfg.serviceDid,
+      ctx.didResolver,
+    )
+    if (!ctx.cfg.permittedUsers.includes(requesterDid)) {
+      countFeedRequest(feedUri.rkey)
+    } else {
+      console.log('Not counting feed request')
+    }
 
     return {
       encoding: 'application/json',

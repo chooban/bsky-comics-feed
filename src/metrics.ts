@@ -20,7 +20,6 @@ export const setupMetrics = () => {
     promClient: {
       collectDefaultMetrics: {},
     },
-    promRegistry: register,
   })
   register.registerMetric(feedRequestCounter)
 
@@ -29,5 +28,5 @@ export const setupMetrics = () => {
 
 export const countFeedRequest = (feedId: string): void => {
   console.log(`Counting request for ${feedId}`)
-  feedRequestCounter.labels({ feed: feedId })
+  feedRequestCounter.labels({ feed: feedId }).inc()
 }
