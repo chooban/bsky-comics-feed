@@ -28,6 +28,7 @@ FROM deploy-base AS deploy
 COPY --from=install /temp/prod/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/src/views ./dist/views
+COPY feeds.yml .
 
 EXPOSE 3000
 
