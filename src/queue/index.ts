@@ -1,8 +1,8 @@
-import { Queue } from 'bullmq'
+import { Queue, Worker } from 'bullmq'
 import { Config } from '../config'
 import { Database } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
-import { newProjectsWorker } from './projects-worker'
+// import { newProjectsWorker } from './projects-worker'
 import { UUID } from '../types/uuid'
 
 export const NEW_POST_QUEUE = 'newposts'
@@ -48,10 +48,14 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     ...queueConfig,
     concurrency: cfg.workerParallelism,
   })
-  const projectsWorker = newProjectsWorker(db, {
-    ...queueConfig,
-    concurrency: cfg.workerParallelism,
-  })
+  const projectsWorker = new Worker(
+    KICKSTARTER_QUEUE,
+    `${__dirname}/project-worker.js`,
+    {
+      ...queueConfig,
+      concurrency: cfg.workerParallelism,
+    },
+  )
 
   postsWorker.on('completed', async (job) => {
     console.log(

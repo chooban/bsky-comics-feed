@@ -10,4 +10,4 @@ RUN yarn install --frozen-lockfile
 EXPOSE 3000
 
 # Specify the command to run the application
-CMD ["yarn", "run", "start"]
+CMD ["yarn", "run", "dev"]

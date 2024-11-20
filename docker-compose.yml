@@ -29,7 +29,7 @@ services:
       - ./src:/usr/src/app/src
       - ./db/:/db/
     working_dir: /usr/src/app
-    command: sh -c "yarn install && yarn nodemon src/index.ts"
+    command: sh -c "yarn install && yarn run dev"
     ports:
       - 3000:3000
     depends_on:
