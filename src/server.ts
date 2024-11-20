@@ -124,11 +124,11 @@ export class FeedGenerator {
 
   async start(): Promise<http.Server> {
     await migrateToLatest(this.db)
-    await clearOldJobs(this.db)
-    await scheduleMissedJobs(this.db)
     this.firehose.run(this.cfg.subscriptionReconnectDelay)
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')
+    await clearOldJobs(this.db)
+    await scheduleMissedJobs(this.db)
     return this.server
   }
 }

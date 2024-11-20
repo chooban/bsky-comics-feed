@@ -2,73 +2,70 @@ import { Worker, WorkerOptions } from 'bullmq'
 import { KICKSTARTER_QUEUE } from '.'
 import { Database } from '../db'
 import { ApifyClient } from 'apify-client'
-import { UUID } from '../types/uuid'
 import { canonicalizeKickstarterUrl } from '../util/kickstarter'
 import { UNKNOWN } from '../db/projects'
 
 export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
-  const setIndexing = async (projectId: UUID, isIndexing: number) =>
-    db
-      .updateTable('project')
-      .set({ isIndexing: isIndexing })
-      .where('project.projectId', '=', projectId)
-      .executeTakeFirst()
-
   const projectsWorker = new Worker(
     KICKSTARTER_QUEUE,
     async (job) => {
       if (!job.data.projectId) {
         return
       }
-      const existingProject = await db
-        .selectFrom('project')
-        .selectAll('project')
+      const project = await db
+        .updateTable('project')
+        .set({ isIndexing: 1 })
         .where('project.projectId', '=', job.data.projectId)
         .where('project.isIndexing', '=', 0)
-        .where('project.indexedAt', 'is not', null)
+        .where('project.indexedAt', 'is', null)
+        .returningAll()
         .executeTakeFirst()
 
-      if (existingProject == undefined) {
+      if (project == undefined) {
         console.log(
           `Could not find project suitable for indexing with ID: ${job.data.projectId}`,
         )
         return
       }
 
-      const uri = await canonicalizeKickstarterUrl(existingProject.uri)
+      const canonicalizedUri = await canonicalizeKickstarterUrl(project.uri)
 
-      if (!uri) {
+      if (!canonicalizedUri) {
         console.log(`Could not determine project to look up`)
+        await db
+          .updateTable('project')
+          .set({ indexedAt: new Date().toISOString(), isIndexing: 0 })
+          .where('project.projectId', '=', job.data.projectId)
+          .execute()
+
         return
       }
-      console.log(`Should look up info for ${uri}`)
+      console.log(`Should look up info for ${canonicalizedUri}`)
 
       const existingByUri = await db
         .selectFrom('project')
         .selectAll('project')
-        .where('project.uri', '=', uri)
+        .where('project.uri', '=', canonicalizedUri)
         .where('project.indexedAt', 'is not', null)
         .executeTakeFirst()
 
       if (existingByUri !== undefined) {
-        console.log(`Found a matching project`)
+        console.log(`Found a matching project, no need to look it up again`)
         await db
           .updateTable('project')
           .set({
-            uri,
+            uri: canonicalizedUri,
             category: existingByUri.category,
             title: existingByUri.title,
             indexedAt: new Date().toISOString(),
           })
-          .where('project.projectId', '=', existingProject.projectId)
+          .where('project.projectId', '=', project.projectId)
           .execute()
 
         return
       }
 
-      await setIndexing(existingProject.projectId, 1)
-
-      const projectUrlComponents = uri.split('/')
+      const projectUrlComponents = canonicalizedUri.split('/')
       const projectQuery =
         projectUrlComponents[projectUrlComponents.length - 1].split('-')
 
@@ -79,7 +76,7 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
         await db
           .updateTable('project')
           .set({ isIndexing: 0, indexedAt: new Date().toISOString() })
-          .where('project.projectId', '=', existingProject.projectId)
+          .where('project.projectId', '=', project.projectId)
           .execute()
         return
       }
@@ -102,17 +99,17 @@ export const newProjectsWorker = (db: Database, config: WorkerOptions) => {
 
       const { items } = await client.dataset(defaultDatasetId).listItems()
 
-      const matching = items.find((d) => d.url === uri)
+      const matching = items.find((d) => d.url === canonicalizedUri)
       await db
         .updateTable('project')
         .set({
           category: (matching?.categoryName as string) ?? UNKNOWN,
           title: (matching?.name as string) ?? UNKNOWN,
-          uri,
+          uri: canonicalizedUri,
           indexedAt: new Date().toISOString(),
           isIndexing: 0,
         })
-        .where('project.projectId', '=', existingProject.projectId)
+        .where('project.projectId', '=', project.projectId)
         .execute()
     },
     config,

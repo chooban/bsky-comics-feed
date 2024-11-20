@@ -24,6 +24,7 @@ export type Config = {
   redisIpvFamily: number
   permittedUsers: string[]
   feeds: Record<string, Feed>
+  workerParallelism: number
 }
 
 export type Feed = {
@@ -117,5 +118,6 @@ export const buildConfig = (): Config => {
     redisIpvFamily: maybeInt(process.env.REDIS_IPV_FAMILY) ?? 4,
     permittedUsers,
     feeds: feedsConfig,
+    workerParallelism: maybeInt(process.env.WORKERS) ?? 1,
   }
 }

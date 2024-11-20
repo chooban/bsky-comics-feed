@@ -44,8 +44,14 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   postsQueue = new Queue(NEW_POST_QUEUE, queueConfig)
   projectsQueue = new Queue(KICKSTARTER_QUEUE, queueConfig)
 
-  const postsWorker = newPostsWorker(db, queueConfig)
-  const projectsWorker = newProjectsWorker(db, queueConfig)
+  const postsWorker = newPostsWorker(db, {
+    ...queueConfig,
+    concurrency: cfg.workerParallelism,
+  })
+  const projectsWorker = newProjectsWorker(db, {
+    ...queueConfig,
+    concurrency: cfg.workerParallelism,
+  })
 
   postsWorker.on('completed', async (job) => {
     console.log(

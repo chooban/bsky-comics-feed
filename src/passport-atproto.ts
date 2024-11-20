@@ -58,7 +58,6 @@ async function configureAtproto(app: Express, cfg: Config) {
       callback,
     }) {
       if (req) {
-        //@ts-expect-error User is added
         req.user = profile
       }
 
@@ -78,17 +77,20 @@ async function configureAtproto(app: Express, cfg: Config) {
 
   passport.use(strategy)
   passport.serializeUser((user, done) => {
+    // @ts-expect-error Profile has been added
     if (!cfg.permittedUsers.includes(user.profile.did)) {
       return done('Unknown user', null)
     }
     done(null, user)
   })
 
-  passport.deserializeUser((user, done) => {
+  passport.deserializeUser((user: Express.User, done) => {
+    // @ts-expect-error tokenExpiry has been added
     if (!user?.tokenExpiry) {
       return done(null, user)
     }
 
+    // @ts-expect-error tokenExpiry has been added
     const expiryDate = new Date(user.tokenExpiry)
     const currentDate = new Date()
 
@@ -98,6 +100,7 @@ async function configureAtproto(app: Express, cfg: Config) {
 
     console.log('Refreshing token')
     strategy
+      // @ts-expect-error Types are fine
       .refreshAccessToken(user)
       .then((updatedUser) => done(null, updatedUser))
       .catch((err) => {
@@ -124,7 +127,6 @@ async function configureAtproto(app: Express, cfg: Config) {
   )
 
   app.get('/auth/atprotocol/logout', (req, res) => {
-    //@ts-expect-error Passport adds logout
     req.logout((err) => {
       if (err) {
         console.error('Logout error:', err)
@@ -141,7 +143,6 @@ async function configureAtproto(app: Express, cfg: Config) {
         //@ts-expect-error User is there
         .revoke(req.user.profile.did)
         .then(() => {
-          //@ts-expect-error Passport adds logout
           req.logout((err) => {
             if (err) {
               console.error('Logout error:', err)
