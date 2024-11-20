@@ -3,6 +3,10 @@ import inquirer from 'inquirer'
 import { AtpAgent, BlobRef } from '@atproto/api'
 import fs from 'fs/promises'
 import { ids } from '../src/lexicon/lexicons'
+import path from 'path'
+import * as yaml from 'js-yaml'
+import { exit } from 'process'
+import { buildFeedConfig } from '../src/config'
 
 const run = async () => {
   dotenv.config()
@@ -15,103 +19,87 @@ const run = async () => {
     throw new Error('Please provide an app password in the .env file')
   }
 
-  const answers = await inquirer.prompt([
-    {
+  const questions: any[] = []
+  let blueskyHandle: string | undefined = undefined
+  if (!process.env.BLUESKY_HANDLE) {
+    questions.push({
       type: 'input',
       name: 'handle',
       message: 'Enter your Bluesky handle:',
       required: true,
-    },
-    // {
-    //   type: 'password',
-    //   name: 'password',
-    //   message: 'Enter your Bluesky password (preferably an App Password):',
-    // },
-    {
-      type: 'input',
-      name: 'service',
-      message: 'Optionally, enter a custom PDS service to sign in with:',
-      default: 'https://bsky.social',
-      required: false,
-    },
-    {
-      type: 'input',
-      name: 'recordName',
-      message:
-        "Enter a short name or the record. This will be shown in the feed's URL:",
-      required: true,
-    },
-    {
-      type: 'input',
-      name: 'displayName',
-      message: 'Enter a display name for your feed:',
-      required: true,
-    },
-    {
-      type: 'input',
-      name: 'description',
-      message: 'Optionally, enter a brief description of your feed:',
-      required: false,
-    },
-    {
-      type: 'input',
-      name: 'avatar',
-      message:
-        'Optionally, enter a local path to an avatar that will be used for the feed:',
-      required: false,
-    },
-  ])
+    })
+  } else {
+    blueskyHandle = process.env.BLUESKY_HANDLE
+  }
 
-  const {
-    handle,
-    // password,
-    recordName,
-    displayName,
-    description,
-    avatar,
-    service,
-  } = answers
+  const configFilePath = process.cwd() + path.sep + 'feeds.yml'
+  console.log(`Attempting to read ${configFilePath}`)
+  const fileContents = await fs.readFile(configFilePath, { encoding: 'utf-8' })
+  const data = yaml.load(fileContents) as Record<string, unknown>
+  const feedsConfig = buildFeedConfig(data)
+
+  if (questions.length > 0) {
+    const answers = await inquirer.prompt(questions)
+    let { handle } = answers
+    blueskyHandle = handle
+  }
 
   const feedGenDid =
     process.env.FEEDGEN_SERVICE_DID ?? `did:web:${process.env.FEEDGEN_HOSTNAME}`
 
   const password = process.env.APP_PASSWORD
 
-  // only update this if in a test environment
-  const agent = new AtpAgent({
-    service: service ? service : 'https://bsky.social',
-  })
-  await agent.login({ identifier: handle, password })
-
-  let avatarRef: BlobRef | undefined
-  if (avatar) {
-    let encoding: string
-    if (avatar.endsWith('png')) {
-      encoding = 'image/png'
-    } else if (avatar.endsWith('jpg') || avatar.endsWith('jpeg')) {
-      encoding = 'image/jpeg'
-    } else {
-      throw new Error('expected png or jpeg')
-    }
-    const img = await fs.readFile(avatar)
-    const blobRes = await agent.api.com.atproto.repo.uploadBlob(img, {
-      encoding,
-    })
-    avatarRef = blobRes.data.blob
+  if (!blueskyHandle) {
+    console.log('No handle to use')
+    exit(1)
   }
 
-  await agent.api.com.atproto.repo.putRecord({
-    repo: agent.session?.did ?? '',
-    collection: ids.AppBskyFeedGenerator,
-    rkey: recordName,
-    record: {
-      did: feedGenDid,
-      displayName: displayName,
-      description: description,
-      avatar: avatarRef,
-      createdAt: new Date().toISOString(),
-    },
+  // only update this if in a test environment
+  const agent = new AtpAgent({
+    service: 'https://bsky.social',
   })
+  await agent.login({ identifier: blueskyHandle, password })
+
+  for (const rkey in feedsConfig) {
+    console.log(`Updating ${rkey}`)
+    const { avatar, title: displayName, description } = feedsConfig[rkey]
+
+    let avatarRef: BlobRef | undefined
+    if (avatar) {
+      let encoding: string
+      if (avatar.endsWith('png')) {
+        encoding = 'image/png'
+      } else if (avatar.endsWith('jpg') || avatar.endsWith('jpeg')) {
+        encoding = 'image/jpeg'
+      } else {
+        throw new Error('expected png or jpeg')
+      }
+      const img = await fs.readFile(avatar)
+      const blobRes = await agent.api.com.atproto.repo.uploadBlob(img, {
+        encoding,
+      })
+      avatarRef = blobRes.data.blob
+    }
+
+    const fullDescription = `
+${description}
+    
+No keyword matching, only posts and threads that contain a link to 
+a Kickstarter project in the following categories: ${feedsConfig[rkey].categories.join(', ')}`
+
+    await agent.api.com.atproto.repo.putRecord({
+      repo: agent.session?.did ?? '',
+      collection: ids.AppBskyFeedGenerator,
+      rkey,
+      record: {
+        did: feedGenDid,
+        displayName: displayName,
+        description: fullDescription,
+        avatar: avatarRef,
+        createdAt: new Date().toISOString(),
+      },
+    })
+  }
 
   console.log('All done 🎉')
 }

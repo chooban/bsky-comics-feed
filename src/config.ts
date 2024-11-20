@@ -31,6 +31,7 @@ export type Feed = {
   title: string
   description: string
   categories: string[]
+  avatar: string | undefined
 }
 
 const maybeStr = (val?: string) => {
@@ -57,7 +58,7 @@ const maybeArray = (val?: string) => {
   return list
 }
 
-const buildFeedConfig = (
+export const buildFeedConfig = (
   records: Record<string, unknown>,
 ): Record<string, Feed> => {
   const feeds: Record<string, Feed> = {}
@@ -71,6 +72,7 @@ const buildFeedConfig = (
           title: rawData[k]['title'] as string,
           description: rawData[k]['description'] as string,
           categories: rawData[k]['categories'],
+          avatar: rawData[k]['avatar'],
         }
         feeds[k] = f
       }
@@ -85,7 +87,7 @@ export const buildConfig = (): Config => {
 
   const configFilePath = process.cwd() + path.sep + 'feeds.yml'
   console.log(`Attempting to read ${configFilePath}`)
-  const fileContents = fs.readFileSync(configFilePath)
+  const fileContents = fs.readFileSync(configFilePath, { encoding: 'utf-8' })
   const data = yaml.load(fileContents) as Record<string, unknown>
 
   const feedsConfig = buildFeedConfig(data)
