@@ -1,6 +1,9 @@
 export const canonicalizeKickstarterUrl = async (
   url: string,
 ): Promise<string | null> => {
+  /**
+   * Returns null if it's not a link to a specific KS project
+   */
   console.log(`Canonicalizing ${url}`)
   if (!isKickstarterUrl(url)) {
     return null
@@ -27,6 +30,11 @@ export const canonicalizeKickstarterUrl = async (
   const urlParts = u.pathname.split('/')
   if (urlParts.length < 3) {
     // Should contain projects, a username, and a project slug
+    return null
+  }
+
+  if (urlParts[0] !== 'projects') {
+    console.log(`Ignoring non-project URL: ${url}`)
     return null
   }
 
