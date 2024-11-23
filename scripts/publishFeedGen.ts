@@ -81,12 +81,14 @@ const run = async () => {
       avatarRef = blobRes.data.blob
     }
 
-    const fullDescription = `
+    let fullDescription = `
 ${description}
     
-No keyword matching, only posts and threads that contain a link to 
-a Kickstarter project in the following categories: ${feedsConfig[rkey].categories.join(', ')}`
+Posts and threads that contain a link to a Kickstarter project in these categories: ${feedsConfig[rkey].categories.join(', ')}`
 
+    if (fullDescription.length > 300) {
+      fullDescription = fullDescription.slice(277) + '...'
+    }
     await agent.api.com.atproto.repo.putRecord({
       repo: agent.session?.did ?? '',
       collection: ids.AppBskyFeedGenerator,

@@ -1,8 +1,7 @@
 feeds:
   cfcomics:
     title: Crowdfunded Comics
-    description: | 
-      Posts about comics and graphic novels being crowdfunded on Kickstarter
+    description: Comics and graphic novels being crowdfunded on Kickstarter
     categories:
       - Comic Books
       - Graphic Novels
@@ -10,29 +9,25 @@ feeds:
       - Comics
   cfttg:
     title: Board Games and RPGs
-    description: |
-      Posts about tabletop games and RPGs being crowdfunded on Kickstarter.
+    description: Tabletop games and RPGs being crowdfunded on Kickstarter.
     categories:
       - Tabletop Games
       - Games
   cfvideogames:
     title: Crowdfunded Video Games
-    description: |
-      Posts about video games and hardware being crowdfunded on Kickstarter.
+    description: Video games and hardware being crowdfunded on Kickstarter.
     categories:
       - Video Games
       - Gaming Hardware
       - Games
   cfgadgets:
     title: Crowdfunded Gadgets 
-    description: |
-      Posts about gadgets being crowdfunded on Kickstarter.
+    description: Gadgets being crowdfunded on Kickstarter.
     categories:
       - Gadgets
   cfmakers:
     title: Crowdfunding For Makers 
-    description: |
-      Posts about makers projects being crowdfunded on Kickstarter.
+    description: Makers projects being crowdfunded on Kickstarter.
     categories:
       - 3D Printing 
       - DIY Electronics
@@ -40,3 +35,36 @@ feeds:
       - Makerspaces 
       - Textiles 
       - Woodworking
+  cfmusic:
+    title: Kickstarter Music 
+    description: Music projects being crowdfunded on Kickstarter.
+    categories:
+      - Music
+      - Chiptune
+      - Classical Music
+      - Country & Folk
+      - Electronic Music
+      - Hip-Hop
+      - Indie Rock
+      - Jazz
+      - Metal
+      - Musical
+      - Rock
+      - World Music
+  cfbooks:
+    title: Kickstarter Books
+    description: Book and zine projects being crowdfunded on Kickstarter.
+    categories:
+      - Books
+      - Publishing
+      - Zines
+      - Art Books
+      - Children's Books
+      - Fantasy
+      - Fiction
+      - Journalism
+      - Literary Journals
+      - Nonfiction
+      - Science Fiction
+      - Thrillers
+      - Young Adult

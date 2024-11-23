@@ -29,6 +29,7 @@ export const canonicalizeKickstarterUrl = async (
     // Should contain projects, a username, and a project slug
     return null
   }
+
   const newUri = `${u.origin}${urlParts.slice(0, 4).join('/')}`
   console.log(`Returning ${newUri}`)
 
