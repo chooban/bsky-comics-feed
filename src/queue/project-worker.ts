@@ -4,9 +4,6 @@ import { canonicalizeKickstarterUrl } from '../util/kickstarter'
 import { UNKNOWN } from '../db/projects'
 import { buildConfig } from '../config'
 
-// export const newProjectsWorker = (config: WorkerOptions) => {
-// const projectsWorker = new Worker(
-// KICKSTARTER_QUEUE,
 export default async (job) => {
   if (!job.data.projectId) {
     return
@@ -67,30 +64,15 @@ export default async (job) => {
     return
   }
 
-  const projectUrlComponents = canonicalizedUri.split('/')
-  const projectQuery =
-    projectUrlComponents[projectUrlComponents.length - 1].split('-')
-
-  if (projectQuery.length < 1) {
-    console.log(`Very odd looking query. Skipping: ${projectQuery.join('-')}`)
-    await db
-      .updateTable('project')
-      .set({ isIndexing: 0, indexedAt: new Date().toISOString() })
-      .where('project.projectId', '=', project.projectId)
-      .execute()
-    return
-  }
-
-  console.log(`Kicking off search for ${projectQuery.join(' ')}`)
   const client = new ApifyClient({
     token: process.env.APIFY_TOKEN,
   })
 
   // Starts an actor and waits for it to finish.
   const { defaultDatasetId } = await client
-    .actor('chooban/kickstarter-search-apify')
+    .actor('chooban/apify-kickstarter-project')
     .call(
-      { query: projectQuery.join(' ') },
+      { projectUrls: [{ url: canonicalizedUri }] },
       {
         waitSecs: 120,
         maxItems: 10,
@@ -99,12 +81,18 @@ export default async (job) => {
 
   const { items } = await client.dataset(defaultDatasetId).listItems()
 
-  const matching = items.find((d) => d.url === canonicalizedUri)
+  if (items.length == 0) {
+    console.log(`Apparently could not find anything for ${canonicalizedUri}`)
+  }
+  const matching = items[0]
+  console.log(
+    `Setting title to ${matching?.title} and category to ${matching?.category}`,
+  )
   await db
     .updateTable('project')
     .set({
-      category: (matching?.categoryName as string) ?? UNKNOWN,
-      title: (matching?.name as string) ?? UNKNOWN,
+      category: (matching?.category as string) ?? UNKNOWN,
+      title: (matching?.title as string) ?? UNKNOWN,
       uri: canonicalizedUri,
       indexedAt: new Date().toISOString(),
       isIndexing: 0,
@@ -112,8 +100,3 @@ export default async (job) => {
     .where('project.projectId', '=', project.projectId)
     .execute()
 }
-// config,
-// )
-
-// return projectsWorker
-// }

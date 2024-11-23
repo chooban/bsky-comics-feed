@@ -57,3 +57,21 @@ migrations['002'] = {
     await db.schema.alterTable('post').dropColumn('createdAt').execute()
   },
 }
+
+migrations['003'] = {
+  async up(db: Kysely<unknown>) {
+    await sql`
+      update project set indexedAt = null 
+      where projectId IN (
+          select project.projectId from project join post on (post.projectId = project.projectId) where project.title = 'Unknown' and post.createdAt > DATETIME('now', '-3 day')
+        )`.execute(db)
+  },
+}
+
+migrations['004'] = {
+  async up(db: Kysely<unknown>) {
+    await sql`update project set indexedAt = null where title = 'Unknown'`.execute(
+      db,
+    )
+  },
+}
