@@ -27,6 +27,5 @@ export const setupMetrics = () => {
 }
 
 export const countFeedRequest = (feedId: string): void => {
-  console.log(`Counting request for ${feedId}`)
   feedRequestCounter.labels({ feed: feedId }).inc()
 }

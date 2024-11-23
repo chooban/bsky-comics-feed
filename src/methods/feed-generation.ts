@@ -42,8 +42,6 @@ export default function (server: Server, ctx: AppContext) {
       )
       if (!ctx.cfg.permittedUsers.includes(requesterDid)) {
         countFeedRequest(feedUri.rkey)
-      } else {
-        console.log('Not counting feed request')
       }
     } catch (e) {
       console.log(`Error authenticating user: ${e}`)

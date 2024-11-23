@@ -33,7 +33,7 @@ export const canonicalizeKickstarterUrl = async (
     return null
   }
 
-  if (urlParts[0] !== 'projects') {
+  if (urlParts[1] !== 'projects') {
     console.log(`Ignoring non-project URL: ${url}`)
     return null
   }

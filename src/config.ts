@@ -87,7 +87,6 @@ export const buildConfig = (): Config => {
   dotenv.config()
 
   const configFilePath = process.cwd() + path.sep + 'feeds.yml'
-  console.log(`Attempting to read ${configFilePath}`)
   const fileContents = fs.readFileSync(configFilePath, { encoding: 'utf-8' })
   const data = yaml.load(fileContents) as Record<string, unknown>
 

@@ -56,6 +56,7 @@ export default async (job) => {
         uri: canonicalizedUri,
         category: existingByUri.category,
         title: existingByUri.title,
+        parentCategory: existingByUri.parentCategory,
         indexedAt: new Date().toISOString(),
       })
       .where('project.projectId', '=', project.projectId)
@@ -93,6 +94,7 @@ export default async (job) => {
     .set({
       category: (matching?.category as string) ?? UNKNOWN,
       title: (matching?.title as string) ?? UNKNOWN,
+      parentCategory: (matching?.parentCategory as string) ?? UNKNOWN,
       uri: canonicalizedUri,
       indexedAt: new Date().toISOString(),
       isIndexing: 0,

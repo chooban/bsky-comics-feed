@@ -75,3 +75,15 @@ migrations['004'] = {
     )
   },
 }
+
+migrations['005'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .alterTable('project')
+      .addColumn('parentCategory', 'varchar')
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.alterTable('project').dropColumn('parentCategory').execute()
+  },
+}
