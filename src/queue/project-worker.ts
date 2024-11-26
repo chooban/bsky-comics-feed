@@ -95,12 +95,14 @@ export default async (job) => {
   }
 
   for (const matching of items) {
-    const uri = matching?.uri as string
+    console.log({ matching })
+    const uri = matching?.url as string
     if (!uri) {
       console.log(`No URI returned`)
       continue
     }
 
+    console.log(`Updating where uri is ${uri}`)
     await db
       .updateTable('project')
       .set({
@@ -113,4 +115,11 @@ export default async (job) => {
       .where('project.uri', '=', uri)
       .execute()
   }
+
+  await db
+    .updateTable('project')
+    .set({ isIndexing: 0, indexedAt: new Date().toISOString() })
+    .where('project.projectId', '=', project.projectId)
+    .where('project.isIndexing', '=', 1)
+    .execute()
 }

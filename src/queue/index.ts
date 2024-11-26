@@ -62,7 +62,19 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
       `Posts job ${job.id} has completed! Returning ${job.returnvalue}`,
     )
     for (const projectId of job.returnvalue) {
-      await scheduleProjectQuery(projectId)
+      const project = await db
+        .selectFrom('project')
+        .selectAll()
+        .where('project.projectId', '=', projectId)
+        .executeTakeFirst()
+
+      if (!project) {
+        console.log(`Could not find project after processing a new post`)
+      } else {
+        if (!project.indexedAt) {
+          await scheduleProjectQuery(projectId)
+        }
+      }
     }
   })
 
