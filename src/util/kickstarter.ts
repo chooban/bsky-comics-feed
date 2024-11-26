@@ -45,5 +45,8 @@ export const canonicalizeKickstarterUrl = async (
 }
 
 export const isKickstarterUrl = (url: string | undefined): url is string => {
-  return !!(url?.includes('kickstarter.com') || url?.includes('kck.st'))
+  return (
+    !!(url?.includes('kickstarter.com') || url?.includes('kck.st')) &&
+    !url.includes('...')
+  )
 }

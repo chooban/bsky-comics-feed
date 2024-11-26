@@ -39,6 +39,14 @@ export default async (job) => {
 
     return
   }
+
+  if (canonicalizedUri !== project.uri) {
+    await db
+      .updateTable('project')
+      .set({ uri: canonicalizedUri })
+      .where('project.projectId', '=', project.projectId)
+      .execute()
+  }
   console.log(`Should look up info for ${canonicalizedUri}`)
 
   const existingByUri = await db
@@ -85,20 +93,24 @@ export default async (job) => {
   if (items.length == 0) {
     console.log(`Apparently could not find anything for ${canonicalizedUri}`)
   }
-  const matching = items[0]
-  console.log(
-    `Setting title to ${matching?.title} and category to ${matching?.category}`,
-  )
-  await db
-    .updateTable('project')
-    .set({
-      category: (matching?.category as string) ?? UNKNOWN,
-      title: (matching?.title as string) ?? UNKNOWN,
-      parentCategory: (matching?.parentCategory as string) ?? UNKNOWN,
-      uri: canonicalizedUri,
-      indexedAt: new Date().toISOString(),
-      isIndexing: 0,
-    })
-    .where('project.projectId', '=', project.projectId)
-    .execute()
+
+  for (const matching of items) {
+    const uri = matching?.uri as string
+    if (!uri) {
+      console.log(`No URI returned`)
+      continue
+    }
+
+    await db
+      .updateTable('project')
+      .set({
+        category: (matching?.category as string) ?? UNKNOWN,
+        title: (matching?.title as string) ?? UNKNOWN,
+        parentCategory: (matching?.parentCategory as string) ?? UNKNOWN,
+        indexedAt: new Date().toISOString(),
+        isIndexing: 0,
+      })
+      .where('project.uri', '=', uri)
+      .execute()
+  }
 }

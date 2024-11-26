@@ -33,7 +33,6 @@ const run = async () => {
   }
 
   const configFilePath = process.cwd() + path.sep + 'feeds.yml'
-  console.log(`Attempting to read ${configFilePath}`)
   const fileContents = await fs.readFile(configFilePath, { encoding: 'utf-8' })
   const data = yaml.load(fileContents) as Record<string, unknown>
   const feedsConfig = buildFeedConfig(data)
@@ -87,7 +86,7 @@ ${description}
 Posts and threads that contain a link to a Kickstarter project in these categories: ${feedsConfig[rkey].categories.join(', ')}`
 
     if (fullDescription.length > 300) {
-      fullDescription = fullDescription.slice(277) + '...'
+      fullDescription = fullDescription.slice(0, 277) + '...'
     }
     await agent.api.com.atproto.repo.putRecord({
       repo: agent.session?.did ?? '',
