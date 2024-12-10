@@ -58,9 +58,6 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   )
 
   postsWorker.on('completed', async (job) => {
-    console.log(
-      `Posts job ${job.id} has completed! Returning ${job.returnvalue}`,
-    )
     for (const projectId of job.returnvalue) {
       const project = await db
         .selectFrom('project')

@@ -38,8 +38,6 @@ export const newPostsWorker = (db: Database, config: WorkerOptions) => {
           continue
         }
 
-        console.log(`Found project with ID of ${projectId}`)
-
         await db
           .insertInto('post')
           .values({

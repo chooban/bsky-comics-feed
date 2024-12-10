@@ -4,7 +4,6 @@ export const canonicalizeKickstarterUrl = async (
   /**
    * Returns null if it's not a link to a specific KS project
    */
-  console.log(`Canonicalizing ${url}`)
   if (!isKickstarterUrl(url)) {
     return null
   }
@@ -39,7 +38,6 @@ export const canonicalizeKickstarterUrl = async (
   }
 
   const newUri = `${u.origin}${urlParts.slice(0, 4).join('/')}`
-  console.log(`Returning ${newUri}`)
 
   return newUri
 }
@@ -47,6 +45,6 @@ export const canonicalizeKickstarterUrl = async (
 export const isKickstarterUrl = (url: string | undefined): url is string => {
   return (
     !!(url?.includes('kickstarter.com') || url?.includes('kck.st')) &&
-    !url.includes('...')
+    !(url.includes('...') || url.includes('%E2%80%A6'))
   )
 }

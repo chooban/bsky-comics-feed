@@ -16,19 +16,27 @@ export default async (job) => {
     .set({ isIndexing: 1 })
     .where('project.projectId', '=', job.data.projectId)
     .where('project.isIndexing', '=', 0)
-    .where('project.indexedAt', 'is', null)
+    // .where('project.indexedAt', 'is', null)
     .returningAll()
     .executeTakeFirst()
 
-  if (project == undefined) {
-    console.log(
-      `Could not find project suitable for indexing with ID: ${job.data.projectId}`,
-    )
+  if (project === undefined) {
+    console.log(`Could not find project with ID: ${job.data.projectId}`)
+    return
+  }
+
+  if (project.indexedAt && project.category !== UNKNOWN) {
+    console.log(`Project has already been indexed`)
+    await db
+      .updateTable('project')
+      .set({ isIndexing: 0 })
+      .where('project.projectId', '=', job.data.projectId)
+      .execute()
+
     return
   }
 
   const canonicalizedUri = await canonicalizeKickstarterUrl(project.uri)
-
   if (!canonicalizedUri) {
     console.log(`Could not determine project to look up`)
     await db
@@ -39,15 +47,6 @@ export default async (job) => {
 
     return
   }
-
-  if (canonicalizedUri !== project.uri) {
-    await db
-      .updateTable('project')
-      .set({ uri: canonicalizedUri })
-      .where('project.projectId', '=', project.projectId)
-      .execute()
-  }
-  console.log(`Should look up info for ${canonicalizedUri}`)
 
   const existingByUri = await db
     .selectFrom('project')
@@ -66,6 +65,7 @@ export default async (job) => {
         title: existingByUri.title,
         parentCategory: existingByUri.parentCategory,
         indexedAt: new Date().toISOString(),
+        isIndexing: 0,
       })
       .where('project.projectId', '=', project.projectId)
       .execute()
@@ -78,6 +78,7 @@ export default async (job) => {
   })
 
   // Starts an actor and waits for it to finish.
+  console.log(`Querying Apify for ${canonicalizedUri}`)
   const { defaultDatasetId } = await client
     .actor('chooban/apify-kickstarter-project')
     .call(
@@ -95,7 +96,6 @@ export default async (job) => {
   }
 
   for (const matching of items) {
-    console.log({ matching })
     const uri = matching?.url as string
     if (!uri) {
       console.log(`No URI returned`)
@@ -110,16 +110,18 @@ export default async (job) => {
         title: (matching?.title as string) ?? UNKNOWN,
         parentCategory: (matching?.parentCategory as string) ?? UNKNOWN,
         indexedAt: new Date().toISOString(),
+        uri: canonicalizedUri,
         isIndexing: 0,
       })
       .where('project.uri', '=', uri)
       .execute()
   }
 
+  // If we didn't find a match, then clear the flag. We'll leave it as unindexed in case this was
+  // just an actor issue.
   await db
     .updateTable('project')
-    .set({ isIndexing: 0, indexedAt: new Date().toISOString() })
+    .set({ isIndexing: 0 })
     .where('project.projectId', '=', project.projectId)
-    .where('project.isIndexing', '=', 1)
     .execute()
 }
