@@ -4,6 +4,7 @@ import { UNKNOWN } from '../db/projects'
 import { buildConfig } from '../config'
 import { Selectable } from 'kysely'
 import { Project } from '../db/schema'
+import { scheduleProjectQuery } from '.'
 
 export default async () => {
   const appConfig = buildConfig()
@@ -12,6 +13,7 @@ export default async () => {
   const projects = await db
     .updateTable('project')
     .set({ isIndexing: 1 })
+    .limit(3)
     .where('project.isIndexing', '=', 0)
     .where('project.indexedAt', 'is', null)
     .returningAll()
@@ -104,4 +106,8 @@ export default async () => {
     .set({ isIndexing: 0 })
     .where('project.isIndexing', '=', 1)
     .execute()
+
+  // Since we limit the number of projects queried at a time to try and prevent 403s, we will schedule
+  // another one now. If it fails to lock any rows, it'll return and we'll wait another half hour
+  scheduleProjectQuery()
 }

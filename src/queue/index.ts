@@ -2,7 +2,6 @@ import { Queue, Worker } from 'bullmq'
 import { Config } from '../config'
 import { Database } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
-import { UUID } from '../types/uuid'
 
 export const NEW_POST_QUEUE = 'newposts'
 export const KICKSTARTER_QUEUE = 'projects'
@@ -17,18 +16,16 @@ export const scheduleNewPostTask = async (post: NewPost) => {
   return postsQueue.add(NEW_POST_QUEUE, { post: post })
 }
 
-export const scheduleProjectQuery = async (projectId: UUID) => {
+export const scheduleProjectQuery = async () => {
   if (projectsQueue === undefined) {
     throw new Error('Projects queue not confifued')
   }
-  console.log(`Scheduling lookup for project ${projectId}`)
+  console.log(`Scheduling lookup for projects`)
   return projectsQueue.add(
     KICKSTARTER_QUEUE,
-    { projectId: projectId },
+    {},
     {
-      deduplication: {
-        id: projectId,
-      },
+      delay: 10 * 1000,
     },
   )
 }
