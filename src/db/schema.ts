@@ -28,4 +28,5 @@ export type Project = {
   parentCategory: string
   indexedAt: string | null
   isIndexing: number
+  addedAt: string
 }
