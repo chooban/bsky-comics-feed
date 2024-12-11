@@ -2,7 +2,6 @@ import { Queue, Worker } from 'bullmq'
 import { Config } from '../config'
 import { Database } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
-// import { newProjectsWorker } from './projects-worker'
 import { UUID } from '../types/uuid'
 
 export const NEW_POST_QUEUE = 'newposts'
@@ -48,14 +47,6 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     ...queueConfig,
     concurrency: cfg.workerParallelism,
   })
-  const projectsWorker = new Worker(
-    KICKSTARTER_QUEUE,
-    `${__dirname}/project-worker.js`,
-    {
-      ...queueConfig,
-      concurrency: cfg.workerParallelism,
-    },
-  )
 
   postsWorker.on('completed', async (job) => {
     for (const projectId of job.returnvalue) {
@@ -67,10 +58,6 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
 
       if (!project) {
         console.log(`Could not find project after processing a new post`)
-      } else {
-        if (!project.indexedAt) {
-          await scheduleProjectQuery(projectId)
-        }
       }
     }
   })
@@ -79,16 +66,31 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     console.log(`Posts job ${job!.id} has failed with ${err.message}`)
   })
 
-  projectsWorker.on('failed', async (job, e) => {
-    console.log(`Project job failed: ${job?.data.projectId}: ${e}`)
+  projectsQueue.upsertJobScheduler(
+    'check-every-30-mins',
+    {
+      pattern: '*/30 * * * *',
+    },
+    { name: 'project-lookup' },
+  )
 
-    if (job?.data.projectId) {
-      await db
-        .updateTable('project')
-        .set({ isIndexing: 0 })
-        .where('project.projectId', '=', job?.data.projectId)
-        .execute()
-    }
+  const projectsWorker = new Worker(
+    KICKSTARTER_QUEUE,
+    `${__dirname}/project-worker.js`,
+    {
+      ...queueConfig,
+      concurrency: cfg.workerParallelism,
+    },
+  )
+
+  projectsWorker.on('failed', async (job, e) => {
+    console.log(`Projects job failed: ${e}`)
+
+    await db
+      .updateTable('project')
+      .set({ isIndexing: 0 })
+      .where('project.isIndexing', '=', 1)
+      .execute()
   })
 
   return [postsQueue, projectsQueue]

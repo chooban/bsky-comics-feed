@@ -5,13 +5,7 @@ import { DidResolver, MemoryCache } from '@atproto/identity'
 import { createServer } from './lexicon'
 import feedGeneration from './methods/feed-generation'
 import describeGenerator from './methods/describe-generator'
-import {
-  clearOldJobs,
-  createDb,
-  Database,
-  migrateToLatest,
-  scheduleMissedJobs,
-} from './db'
+import { clearOldJobs, createDb, Database, migrateToLatest } from './db'
 import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
@@ -128,7 +122,6 @@ export class FeedGenerator {
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')
     await clearOldJobs(this.db)
-    await scheduleMissedJobs(this.db)
     return this.server
   }
 }
