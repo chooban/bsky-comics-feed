@@ -10,17 +10,17 @@ export default async () => {
   const appConfig = buildConfig()
   const db = createDb(appConfig.sqliteLocation)
 
+  console.log(`Locking projects to query`)
   const projects = await db
     .updateTable('project')
     .set({ isIndexing: 1 })
-    .limit(3)
     .where('project.isIndexing', '=', 0)
     .where('project.indexedAt', 'is', null)
     .returningAll()
     .execute()
 
   if (projects.length === 0) {
-    console.log(`Could not find any projects to update`)
+    console.log(`Could not find any projects to query`)
     return
   }
 

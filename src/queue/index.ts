@@ -2,12 +2,15 @@ import { Queue, Worker } from 'bullmq'
 import { Config } from '../config'
 import { Database } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
+import { deletePostsWorker } from './delete-posts-worker'
 
 export const NEW_POST_QUEUE = 'newposts'
 export const KICKSTARTER_QUEUE = 'projects'
+export const DELETE_POSTS_QUEUE = 'deleteposts'
 
 let postsQueue: Queue | undefined = undefined
 let projectsQueue: Queue | undefined = undefined
+let deletePostsQueue: Queue | undefined = undefined
 
 export const scheduleNewPostTask = async (post: NewPost) => {
   if (postsQueue === undefined) {
@@ -37,8 +40,9 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
       family: cfg.redisIpvFamily,
     },
   }
-  postsQueue = new Queue(NEW_POST_QUEUE, queueConfig)
-  projectsQueue = new Queue(KICKSTARTER_QUEUE, queueConfig)
+  postsQueue = new Queue(NEW_POST_QUEUE, { ...queueConfig })
+  projectsQueue = new Queue(KICKSTARTER_QUEUE, { ...queueConfig })
+  deletePostsQueue = new Queue(DELETE_POSTS_QUEUE, { ...queueConfig })
 
   const postsWorker = newPostsWorker(db, {
     ...queueConfig,
@@ -88,6 +92,19 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
       .set({ isIndexing: 0 })
       .where('project.isIndexing', '=', 1)
       .execute()
+  })
+
+  deletePostsQueue.upsertJobScheduler(
+    'delete-posts-schedule',
+    {
+      pattern: '*/30 * * * *',
+    },
+    { name: 'post-deletion' },
+  )
+
+  deletePostsWorker(db, {
+    ...queueConfig,
+    concurrency: cfg.workerParallelism,
   })
 
   return [postsQueue, projectsQueue]
