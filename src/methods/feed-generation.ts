@@ -32,7 +32,10 @@ export default function (server: Server, ctx: AppContext) {
      *
      */
 
-    const body = await buildFeed(algo.categories)(ctx, params)
+    const body = await buildFeed(algo.parentCategory, algo.categories)(
+      ctx,
+      params,
+    )
 
     try {
       const requesterDid = await validateAuth(

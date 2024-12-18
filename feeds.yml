@@ -52,19 +52,12 @@ feeds:
       - Rock
       - World Music
   cfbooks:
-    title: Kickstarter Books
+    title: Kickstarter Publishing
     description: Book and zine projects being crowdfunded on Kickstarter.
-    categories:
-      - Books
+    parentCategory:
       - Publishing
-      - Zines
-      - Art Books
-      - Children's Books
-      - Fantasy
-      - Fiction
-      - Journalism
-      - Literary Journals
-      - Nonfiction
-      - Science Fiction
-      - Thrillers
-      - Young Adult
+  cffilm:
+    title: Kickstarter Film & Video
+    description: Film & Video projects on Kickstarter
+    parentCategory:
+      - Film & Video

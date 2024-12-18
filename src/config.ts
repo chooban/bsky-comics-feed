@@ -31,6 +31,7 @@ export type Feed = {
   key: string
   title: string
   description: string
+  parentCategory: string | undefined
   categories: string[]
   avatar: string | undefined
 }
@@ -74,6 +75,7 @@ export const buildFeedConfig = (
           description: rawData[k]['description'] as string,
           categories: rawData[k]['categories'],
           avatar: rawData[k]['avatar'],
+          parentCategory: rawData[k]['parentCategory'],
         }
         feeds[k] = f
       }

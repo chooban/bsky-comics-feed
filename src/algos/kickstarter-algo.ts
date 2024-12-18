@@ -1,8 +1,14 @@
 import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
 
-export const buildFeed = (categories: string[]) => {
+export const buildFeed = (
+  parentCategory: string | undefined,
+  categories: string[],
+) => {
   return async (ctx: AppContext, params: QueryParams) => {
+    if (!parentCategory && categories.length == 0) {
+      throw new Error('Cannot create feed')
+    }
     const dateLimit = new Date()
     dateLimit.setDate(dateLimit.getDate() - 3)
 
@@ -10,11 +16,16 @@ export const buildFeed = (categories: string[]) => {
       .selectFrom('post')
       .innerJoin('project', 'project.projectId', 'post.projectId')
       .selectAll('post')
-      .where('project.category', 'in', categories)
       .where('post.createdAt', '>', dateLimit.toISOString())
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
       .limit(params.limit)
+
+    if (parentCategory) {
+      builder = builder.where('project.parentCategory', '=', parentCategory)
+    } else {
+      builder = builder.where('project.category', 'in', categories)
+    }
 
     if (params.cursor) {
       const timeStr = new Date(parseInt(params.cursor, 10)).toISOString()

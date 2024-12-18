@@ -82,8 +82,15 @@ const run = async () => {
 
     let fullDescription = `
 ${description}
-    
-Posts and threads that contain a link to a Kickstarter project in these categories: ${feedsConfig[rkey].categories.join(', ')}`
+`
+
+    if (feedsConfig[rkey]['categories'] || [].length > 0) {
+      fullDescription = `
+${fullDescription}
+
+Posts and threads that contain a link to a Kickstarter project in these categories: ${feedsConfig[rkey].categories.join(', ')}
+`
+    }
 
     if (fullDescription.length > 300) {
       fullDescription = fullDescription.slice(0, 277) + '...'
