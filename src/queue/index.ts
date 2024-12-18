@@ -3,6 +3,7 @@ import { Config } from '../config'
 import { Database } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
 import { deletePostsWorker } from './delete-posts-worker'
+import IORedis from 'ioredis'
 
 export const NEW_POST_QUEUE = 'newposts'
 export const KICKSTARTER_QUEUE = 'projects'
@@ -34,18 +35,28 @@ export const scheduleProjectQuery = async () => {
 }
 
 export const createQueues = (cfg: Config, db: Database): Queue[] => {
-  const queueConfig = {
-    connection: {
-      url: cfg.redisUrl,
-      family: cfg.redisIpvFamily,
+  const connection = new IORedis(cfg.redisUrl, {
+    family: cfg.redisIpvFamily,
+    maxRetriesPerRequest: null,
+  })
+  // const queueConfig = {
+  //   connection: {
+  //     url: cfg.redisUrl,
+  //     family: cfg.redisIpvFamily,
+  //   },
+  // }
+  postsQueue = new Queue(NEW_POST_QUEUE, {
+    connection,
+    defaultJobOptions: {
+      removeOnComplete: true,
+      removeOnFail: true,
     },
-  }
-  postsQueue = new Queue(NEW_POST_QUEUE, { ...queueConfig })
-  projectsQueue = new Queue(KICKSTARTER_QUEUE, { ...queueConfig })
-  deletePostsQueue = new Queue(DELETE_POSTS_QUEUE, { ...queueConfig })
+  })
+  projectsQueue = new Queue(KICKSTARTER_QUEUE, { connection })
+  deletePostsQueue = new Queue(DELETE_POSTS_QUEUE, { connection })
 
   const postsWorker = newPostsWorker(db, {
-    ...queueConfig,
+    connection,
     concurrency: cfg.workerParallelism,
   })
 
@@ -79,7 +90,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     KICKSTARTER_QUEUE,
     `${__dirname}/project-worker.js`,
     {
-      ...queueConfig,
+      connection,
       concurrency: cfg.workerParallelism,
     },
   )
@@ -103,7 +114,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   )
 
   deletePostsWorker(db, {
-    ...queueConfig,
+    connection,
     concurrency: cfg.workerParallelism,
   })
 
