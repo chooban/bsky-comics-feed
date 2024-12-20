@@ -1,4 +1,4 @@
-import { Queue, Worker } from 'bullmq'
+import { Queue, Worker, WorkerOptions } from 'bullmq'
 import { Config } from '../config'
 import { Database } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
@@ -39,12 +39,12 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     family: cfg.redisIpvFamily,
     maxRetriesPerRequest: null,
   })
-  // const queueConfig = {
-  //   connection: {
-  //     url: cfg.redisUrl,
-  //     family: cfg.redisIpvFamily,
-  //   },
-  // }
+  const defaultWorkerOptions: WorkerOptions = {
+    drainDelay: 90,
+    concurrency: cfg.workerParallelism,
+    connection,
+  }
+
   postsQueue = new Queue(NEW_POST_QUEUE, {
     connection,
     defaultJobOptions: {
@@ -55,11 +55,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   projectsQueue = new Queue(KICKSTARTER_QUEUE, { connection })
   deletePostsQueue = new Queue(DELETE_POSTS_QUEUE, { connection })
 
-  const postsWorker = newPostsWorker(db, {
-    connection,
-    concurrency: cfg.workerParallelism,
-    drainDelay: 60,
-  })
+  const postsWorker = newPostsWorker(db, defaultWorkerOptions)
 
   postsWorker.on('completed', async (job) => {
     for (const projectId of job.returnvalue) {
@@ -90,11 +86,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   const projectsWorker = new Worker(
     KICKSTARTER_QUEUE,
     `${__dirname}/project-worker.js`,
-    {
-      connection,
-      concurrency: cfg.workerParallelism,
-      drainDelay: 60,
-    },
+    defaultWorkerOptions,
   )
 
   projectsWorker.on('failed', async (job, e) => {
@@ -115,11 +107,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     { name: 'post-deletion' },
   )
 
-  deletePostsWorker(db, {
-    connection,
-    concurrency: cfg.workerParallelism,
-    drainDelay: 60,
-  })
+  deletePostsWorker(db, defaultWorkerOptions)
 
   return [postsQueue, projectsQueue]
 }
