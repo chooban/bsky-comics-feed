@@ -14,8 +14,15 @@ export default async () => {
   const projects = await db
     .updateTable('project')
     .set({ isIndexing: 1 })
-    .where('project.isIndexing', '=', 0)
-    .where('project.indexedAt', 'is', null)
+    .where('isIndexing', '=', 0)
+    .where((eb) =>
+      eb.or([
+        eb('indexedAt', 'is', null),
+        eb('indexedAt', 'is not', null)
+          .and('parentCategory', 'is', null)
+          .and('category', '!=', UNKNOWN),
+      ]),
+    )
     .returningAll()
     .execute()
 
