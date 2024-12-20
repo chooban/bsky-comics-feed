@@ -61,3 +61,8 @@ feeds:
     description: Film & Video projects on Kickstarter
     parentCategory:
       - Film & Video
+  cfgames:
+    title: Kickstarter games
+    description: Kickstarter projects under the parent category of "Games"
+    parentCategory:
+      - Games
