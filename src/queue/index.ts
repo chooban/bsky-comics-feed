@@ -58,6 +58,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   const postsWorker = newPostsWorker(db, {
     connection,
     concurrency: cfg.workerParallelism,
+    drainDelay: 60,
   })
 
   postsWorker.on('completed', async (job) => {
@@ -92,6 +93,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     {
       connection,
       concurrency: cfg.workerParallelism,
+      drainDelay: 60,
     },
   )
 
@@ -116,6 +118,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
   deletePostsWorker(db, {
     connection,
     concurrency: cfg.workerParallelism,
+    drainDelay: 60,
   })
 
   return [postsQueue, projectsQueue]
