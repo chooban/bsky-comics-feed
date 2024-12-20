@@ -15,14 +15,15 @@ export default async () => {
     .updateTable('project')
     .set({ isIndexing: 1 })
     .where('isIndexing', '=', 0)
-    .where((eb) =>
-      eb.or([
-        eb('indexedAt', 'is', null),
-        eb('indexedAt', 'is not', null)
-          .and('parentCategory', 'is', null)
-          .and('category', '!=', UNKNOWN),
-      ]),
-    )
+    .where('indexedAt', 'is', null)
+    // .where((eb) =>
+    //   eb.or([
+    //     eb('indexedAt', 'is', null),
+    //     eb('indexedAt', 'is not', null)
+    //       .and('parentCategory', 'is', null)
+    //       .and('category', '!=', UNKNOWN),
+    //   ]),
+    // )
     .returningAll()
     .execute()
 
