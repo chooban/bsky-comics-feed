@@ -2,11 +2,13 @@ feeds:
   cfcomics:
     title: Crowdfunded Comics
     description: Comics and graphic novels being crowdfunded on Kickstarter
+    parentCategory:
+      - Comics
     categories:
       - Comic Books
       - Graphic Novels
       - Webcomics
-      - Comics
+      - Anthologies
   cfttg:
     title: Board Games and RPGs
     description: Tabletop games and RPGs being crowdfunded on Kickstarter.

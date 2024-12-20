@@ -22,7 +22,15 @@ export const buildFeed = (
       .limit(params.limit)
 
     if (parentCategory) {
-      builder = builder.where('project.parentCategory', '=', parentCategory)
+      if (categories.length > 0) {
+        builder = builder.where((eb) =>
+          eb('project.parentCategory', '=', parentCategory).or(
+            eb('project.category', 'in', categories),
+          ),
+        )
+      } else {
+        builder = builder.where('project.parentCategory', '=', parentCategory)
+      }
     } else {
       builder = builder.where('project.category', 'in', categories)
     }
