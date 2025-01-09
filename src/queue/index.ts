@@ -40,7 +40,7 @@ export const createQueues = (cfg: Config, db: Database): Queue[] => {
     maxRetriesPerRequest: null,
   })
   const defaultWorkerOptions: WorkerOptions = {
-    drainDelay: 90,
+    drainDelay: 120,
     concurrency: cfg.workerParallelism,
     connection,
   }
