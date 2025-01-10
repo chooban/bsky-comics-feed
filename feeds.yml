@@ -68,3 +68,8 @@ feeds:
     description: Kickstarter projects under the parent category of "Games"
     parentCategory:
       - Games
+  cffood:
+    title: Kickstarter Food
+    description: Kickstarter projects under the parent category of "Food"
+    parentCategory:
+        - Food
