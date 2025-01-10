@@ -3,10 +3,10 @@ import { AppContext } from '../config'
 
 export const buildFeed = (
   parentCategory: string | undefined,
-  categories: string[],
+  categories: string[] | undefined,
 ) => {
   return async (ctx: AppContext, params: QueryParams) => {
-    if (!parentCategory && categories.length == 0) {
+    if (!parentCategory && categories?.length == 0) {
       throw new Error('Cannot create feed')
     }
     const dateLimit = new Date()
@@ -22,7 +22,7 @@ export const buildFeed = (
       .limit(params.limit)
 
     if (parentCategory) {
-      if (categories.length > 0) {
+      if (!!categories && categories.length > 0) {
         builder = builder.where((eb) =>
           eb('project.parentCategory', '=', parentCategory).or(
             eb('project.category', 'in', categories),
@@ -32,6 +32,9 @@ export const buildFeed = (
         builder = builder.where('project.parentCategory', '=', parentCategory)
       }
     } else {
+      if (!categories || categories.length < 1) {
+        throw new Error('Poorly configured feed')
+      }
       builder = builder.where('project.category', 'in', categories)
     }
 
