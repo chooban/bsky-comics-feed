@@ -2,11 +2,11 @@ import dotenv from 'dotenv'
 import inquirer from 'inquirer'
 import { AtpAgent, BlobRef } from '@atproto/api'
 import fs from 'fs/promises'
-import { ids } from '../src/lexicon/lexicons'
 import path from 'path'
 import * as yaml from 'js-yaml'
 import { exit } from 'process'
 import { buildFeedConfig } from '../src/config'
+import { ids } from '@atproto/api/dist/client/lexicons'
 
 const run = async () => {
   dotenv.config()
