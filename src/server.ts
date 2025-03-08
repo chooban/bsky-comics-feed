@@ -17,7 +17,7 @@ import passport from 'passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
 import renderFeed from './pages/feed-list'
-import RedisStore from 'connect-redis'
+import { RedisStore } from 'connect-redis'
 import { createClient } from 'redis'
 import { setupMetrics } from './metrics'
 
