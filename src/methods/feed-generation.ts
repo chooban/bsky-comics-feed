@@ -27,28 +27,13 @@ export default function (server: Server, ctx: AppContext) {
         'UnsupportedAlgorithm',
       )
     }
-    /**
-     * Example of how to check auth if giving user-specific results:
-     *
-     */
 
     const body = await buildFeed(algo.parentCategory, algo.categories)(
       ctx,
       params,
     )
 
-    try {
-      const requesterDid = await validateAuth(
-        req,
-        ctx.cfg.serviceDid,
-        ctx.didResolver,
-      )
-      if (!ctx.cfg.permittedUsers.includes(requesterDid)) {
-        countFeedRequest(feedUri.rkey)
-      }
-    } catch (e) {
-      console.log(`Error authenticating user: ${e}`)
-    }
+    countFeedRequest(feedUri.rkey)
 
     return {
       encoding: 'application/json',
