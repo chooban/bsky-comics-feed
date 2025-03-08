@@ -2,10 +2,10 @@ import { Subscription } from '@atproto/xrpc-server'
 import { cborToLexRecord, readCar } from '@atproto/repo'
 import { BlobRef } from '@atproto/lexicon'
 import { ids, lexicons } from '../lexicon/lexicons'
-import { Record as PostRecord } from '../lexicon/types/app/bsky/feed/post'
-import { Record as RepostRecord } from '../lexicon/types/app/bsky/feed/repost'
-import { Record as LikeRecord } from '../lexicon/types/app/bsky/feed/like'
-import { Record as FollowRecord } from '../lexicon/types/app/bsky/graph/follow'
+import { AppBskyFeedPost as Post } from '@atproto/api'
+import { AppBskyFeedRepost as Repost } from '@atproto/api'
+import { AppBskyFeedLike as Like } from '@atproto/api'
+import { AppBskyGraphFollow as Follow } from '@atproto/api'
 import {
   Commit,
   OutputSchema as RepoEvent,
@@ -129,10 +129,10 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
 }
 
 type OperationsByType = {
-  posts: Operations<PostRecord>
-  reposts: Operations<RepostRecord>
-  likes: Operations<LikeRecord>
-  follows: Operations<FollowRecord>
+  posts: Operations<Post.Record>
+  reposts: Operations<Repost.Record>
+  likes: Operations<Like.Record>
+  follows: Operations<Follow.Record>
 }
 
 type Operations<T = Record<string, unknown>> = {
@@ -151,19 +151,19 @@ type DeleteOp = {
   uri: string
 }
 
-export const isPost = (obj: unknown): obj is PostRecord => {
+export const isPost = (obj: unknown): obj is Post.Record => {
   return isType(obj, ids.AppBskyFeedPost)
 }
 
-export const isRepost = (obj: unknown): obj is RepostRecord => {
+export const isRepost = (obj: unknown): obj is Repost.Record => {
   return isType(obj, ids.AppBskyFeedRepost)
 }
 
-export const isLike = (obj: unknown): obj is LikeRecord => {
+export const isLike = (obj: unknown): obj is Like.Record => {
   return isType(obj, ids.AppBskyFeedLike)
 }
 
-export const isFollow = (obj: unknown): obj is FollowRecord => {
+export const isFollow = (obj: unknown): obj is Follow.Record => {
   return isType(obj, ids.AppBskyGraphFollow)
 }
 

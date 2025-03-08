@@ -1,9 +1,11 @@
 import { isExternal } from '../lexicon/types/app/bsky/embed/external'
-import { Record as PostRecord } from '../lexicon/types/app/bsky/feed/post'
 import { RichText } from '@atproto/api'
 import { isKickstarterUrl } from './kickstarter'
+import { AppBskyFeedPost } from '@atproto/api'
 
-export const getKickstarterLinks = (record: PostRecord): string[] => {
+export const getKickstarterLinks = (
+  record: AppBskyFeedPost.Record,
+): string[] => {
   const links: string[] = []
 
   const rt = new RichText({
