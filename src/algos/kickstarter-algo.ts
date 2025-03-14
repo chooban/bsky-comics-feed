@@ -10,6 +10,7 @@ export const buildFeed = (
     params: AppBskyFeedGetFeedSkeleton.QueryParams,
   ) => {
     if (!parentCategory && categories?.length == 0) {
+      console.log(`Could not create feed`)
       throw new Error('Cannot create feed')
     }
     const dateLimit = new Date()
@@ -48,6 +49,7 @@ export const buildFeed = (
       const timeStr = new Date(parseInt(params.cursor, 10)).toISOString()
       builder = builder.where('post.indexedAt', '<', timeStr)
     }
+    console.log('Executing builder')
     const res = await builder.execute()
 
     const feed = res.map((row) => ({

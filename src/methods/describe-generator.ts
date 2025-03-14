@@ -1,14 +1,10 @@
-// import { Server } from '@atproto/xrpc-server'
 import { AppContext } from '../config'
-import { Server } from '../lexicon'
-// import { Server } from '@atproto/api'
-
 import { AtUri } from '@atproto/syntax'
 
-export default function (server: Server, ctx: AppContext) {
+export default function (ctx: AppContext) {
   const algos = ctx.cfg.feeds
 
-  server.app.bsky.feed.describeFeedGenerator(async () => {
+  return (req, res) => {
     const feeds = Object.keys(algos).map((shortname) => ({
       uri: AtUri.make(
         ctx.cfg.publisherDid,
@@ -16,12 +12,9 @@ export default function (server: Server, ctx: AppContext) {
         shortname,
       ).toString(),
     }))
-    return {
-      encoding: 'application/json',
-      body: {
-        did: ctx.cfg.serviceDid,
-        feeds,
-      },
-    }
-  })
+    res.json({
+      did: ctx.cfg.serviceDid,
+      feeds,
+    })
+  }
 }

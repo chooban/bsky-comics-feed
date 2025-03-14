@@ -2,12 +2,9 @@ import http from 'http'
 import events from 'events'
 import express from 'express'
 import { DidResolver, MemoryCache } from '@atproto/identity'
-// import { createServer } from './lexicon'
-// import { createServer } from '@atproto/lexicon'
 import feedGeneration from './methods/feed-generation'
 import describeGenerator from './methods/describe-generator'
 import { clearOldJobs, createDb, Database, migrateToLatest } from './db'
-// import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
 import bullboard from './bullboard'
@@ -83,14 +80,6 @@ export class FeedGenerator {
       didCache,
     })
 
-    const server = createServer({
-      validateResponse: true,
-      payload: {
-        jsonLimit: 100 * 1024, // 100kb
-        textLimit: 100 * 1024, // 100kb
-        blobLimit: 5 * 1024 * 1024, // 5mb
-      },
-    })
     const ctx: AppContext = {
       db,
       didResolver,
@@ -100,13 +89,13 @@ export class FeedGenerator {
       db,
       cfg.subscriptionEndpoint,
     )
-    feedGeneration(server, ctx)
-    describeGenerator(server, ctx)
+    // http://localhost:3000/xrpc/app.bsky.feed.getFeedSkeleton?feed=at://did:plc:2n2izph6uhty5uhdx7l32p67/app.bsky.feed.generator/cfcomics
+    app.use('/xrpc/app.bsky.feed.getFeedSkeleton', feedGeneration(ctx))
+    app.use('/xrpc/app.bsky.feed.describeFeedGenerator', describeGenerator(ctx))
 
     app.use(wellKnown(ctx))
 
     app.use(metricsMiddleware)
-    app.use(server.xrpc.router)
 
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
