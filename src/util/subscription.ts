@@ -21,8 +21,9 @@ export abstract class FirehoseSyncBase {
       service,
       idResolver,
       runner: eventRunner,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onError: (_err: Error) => {},
+      onError: (err: Error) => {
+        console.error(err)
+      },
       handleEvent: async (evnt: SyncEvent) => {
         return this.handleEvent(evnt)
       },
@@ -33,6 +34,7 @@ export abstract class FirehoseSyncBase {
   abstract handleEvent(evt: SyncEvent): Promise<void>
 
   async run() {
+    console.log(`Starting the firehose listener`)
     return this.firehose.start()
   }
 
