@@ -1,11 +1,14 @@
-import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
+import { AppBskyFeedGetFeedSkeleton } from '@atproto/api'
 
 export const buildFeed = (
   parentCategory: string | undefined,
   categories: string[] | undefined,
 ) => {
-  return async (ctx: AppContext, params: QueryParams) => {
+  return async (
+    ctx: AppContext,
+    params: AppBskyFeedGetFeedSkeleton.QueryParams,
+  ) => {
     if (!parentCategory && categories?.length == 0) {
       throw new Error('Cannot create feed')
     }
@@ -19,7 +22,10 @@ export const buildFeed = (
       .where('post.createdAt', '>', dateLimit.toISOString())
       .orderBy('indexedAt', 'desc')
       .orderBy('cid', 'desc')
-      .limit(params.limit)
+
+    if (params.limit) {
+      builder = builder.limit(params.limit)
+    }
 
     if (parentCategory) {
       if (!!categories && categories.length > 0) {

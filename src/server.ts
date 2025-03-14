@@ -2,11 +2,12 @@ import http from 'http'
 import events from 'events'
 import express from 'express'
 import { DidResolver, MemoryCache } from '@atproto/identity'
-import { createServer } from './lexicon'
+// import { createServer } from './lexicon'
+// import { createServer } from '@atproto/lexicon'
 import feedGeneration from './methods/feed-generation'
 import describeGenerator from './methods/describe-generator'
 import { clearOldJobs, createDb, Database, migrateToLatest } from './db'
-import { FirehoseSubscription } from './subscription'
+// import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
 import bullboard from './bullboard'
@@ -20,19 +21,20 @@ import renderFeed from './pages/feed-list'
 import { RedisStore } from 'connect-redis'
 import { createClient } from 'redis'
 import { setupMetrics } from './metrics'
+import { FirehoseSyncBase, KickstarterFirehose } from './util/subscription'
 
 export class FeedGenerator {
   public app: express.Application
   public server?: http.Server
   public db: Database
-  public firehose: FirehoseSubscription
+  public firehose: FirehoseSyncBase
   public cfg: Config
   public newPostQueue: Queue
 
   constructor(
     app: express.Application,
     db: Database,
-    firehose: FirehoseSubscription,
+    firehose: FirehoseSyncBase,
     cfg: Config,
     queue: Queue,
   ) {
@@ -43,7 +45,7 @@ export class FeedGenerator {
     this.newPostQueue = queue
   }
 
-  static create(cfg: Config) {
+  static async create(cfg: Config) {
     const app = express()
     const metricsMiddleware = setupMetrics()
     const redisClient = createClient({
@@ -94,7 +96,10 @@ export class FeedGenerator {
       didResolver,
       cfg,
     }
-    const firehose = new FirehoseSubscription(ctx, cfg.subscriptionEndpoint)
+    const firehose = await KickstarterFirehose.initialize(
+      db,
+      cfg.subscriptionEndpoint,
+    )
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
 
@@ -118,7 +123,8 @@ export class FeedGenerator {
 
   async start(): Promise<http.Server> {
     await migrateToLatest(this.db)
-    this.firehose.run(this.cfg.subscriptionReconnectDelay)
+    // this.firehose.run(this.cfg.subscriptionReconnectDelay)
+    this.firehose.run()
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')
     await clearOldJobs(this.db)

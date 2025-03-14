@@ -1,5 +1,8 @@
-import { Server } from '../lexicon'
+// import { Server } from '@atproto/xrpc-server'
 import { AppContext } from '../config'
+import { Server } from '../lexicon'
+// import { Server } from '@atproto/api'
+
 import { AtUri } from '@atproto/syntax'
 
 export default function (server: Server, ctx: AppContext) {
