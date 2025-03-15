@@ -17,6 +17,7 @@ const compat = new FlatCompat({
 export default [
     {
         ignores: [
+          "**/lexicon/*",
           "**/dist/*",
           "**/methods/*",
           "scripts/*",

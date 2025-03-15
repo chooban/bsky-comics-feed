@@ -1,7 +1,7 @@
+import { isExternal } from '../lexicon/types/app/bsky/embed/external'
 import { RichText } from '@atproto/api'
 import { isKickstarterUrl } from './kickstarter'
 import { AppBskyFeedPost } from '@atproto/api'
-import { hasProp } from './has-prop'
 
 export const getKickstarterLinks = (
   record: AppBskyFeedPost.Record,
@@ -19,13 +19,10 @@ export const getKickstarterLinks = (
     }
   }
 
-  if (record.embed) {
-    const embed = record.embed
-    if (hasProp(embed, 'uri')) {
-      if (isKickstarterUrl(embed.uri as string)) {
-        console.log(`Got one in an embed! ${embed.uri}`)
-        links.push(embed.uri as string)
-      }
+  if (record.embed && isExternal(record.embed)) {
+    if (isKickstarterUrl(record.embed.uri)) {
+      console.log(`Got one in an embed! ${record.embed.uri}`)
+      links.push(record.embed.uri)
     }
   }
 

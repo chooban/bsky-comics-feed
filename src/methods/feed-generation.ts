@@ -1,11 +1,13 @@
+import { InvalidRequestError } from '@atproto/xrpc-server'
+import { Server } from '../lexicon'
 import { AppContext } from '../config'
+import { validateAuth } from '../auth'
 import { AtUri } from '@atproto/syntax'
 import { countFeedRequest } from '../metrics'
 import { buildFeed } from '../algos/kickstarter-algo'
 
-export default function (ctx: AppContext) {
-  return async ({ query: params }, res) => {
-    console.log(`Parsing ${params['feed']}`)
+export default function (server: Server, ctx: AppContext) {
+  server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
     const feedUri = new AtUri(params.feed)
     const algo = ctx.cfg.feeds[feedUri.rkey]
 
@@ -15,19 +17,17 @@ export default function (ctx: AppContext) {
       !algo
     ) {
       console.log(`Bad feed request`)
-      console.log(`Hostname: ${feedUri.hostname} !== ${ctx.cfg.publisherDid}`)
-      console.log(
-        `Collection: ${feedUri.collection} !== app.bsky.feed.generator`,
-      )
+      console.log(`${feedUri.hostname} !== ${ctx.cfg.publisherDid}?`)
+      console.log(`${feedUri.collection} !== app.bsky.feed.generator?`)
       console.log(`!algo (${feedUri.rkey})? ${!algo}`)
       console.log(`${Object.keys(ctx.cfg.feeds)}`)
 
-      res.status(404).json({ message: 'Feed not found' })
-
-      return
+      throw new InvalidRequestError(
+        'Unsupported algorithm',
+        'UnsupportedAlgorithm',
+      )
     }
 
-    console.log(`Building feed for ${algo.key}`)
     const body = await buildFeed(algo.parentCategory, algo.categories)(
       ctx,
       params,
@@ -35,6 +35,9 @@ export default function (ctx: AppContext) {
 
     countFeedRequest(feedUri.rkey)
 
-    return res.json(body)
-  }
+    return {
+      encoding: 'application/json',
+      body: body,
+    }
+  })
 }

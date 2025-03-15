@@ -1,10 +1,11 @@
+import { Server } from '../lexicon'
 import { AppContext } from '../config'
 import { AtUri } from '@atproto/syntax'
 
-export default function (ctx: AppContext) {
+export default function (server: Server, ctx: AppContext) {
   const algos = ctx.cfg.feeds
 
-  return (req, res) => {
+  server.app.bsky.feed.describeFeedGenerator(async () => {
     const feeds = Object.keys(algos).map((shortname) => ({
       uri: AtUri.make(
         ctx.cfg.publisherDid,
@@ -12,9 +13,12 @@ export default function (ctx: AppContext) {
         shortname,
       ).toString(),
     }))
-    res.json({
-      did: ctx.cfg.serviceDid,
-      feeds,
-    })
-  }
+    return {
+      encoding: 'application/json',
+      body: {
+        did: ctx.cfg.serviceDid,
+        feeds,
+      },
+    }
+  })
 }
