@@ -33,4 +33,4 @@ COPY feeds.yml .
 EXPOSE 3000
 
 # Specify the command to run the application
-CMD ["node", "dist/index.js"]
+CMD ["node", "-r", "newrelic", "dist/index.js"]

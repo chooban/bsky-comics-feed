@@ -35,6 +35,7 @@
     "js-yaml": "^4.1.0",
     "kysely": "^0.27.6",
     "multiformats": "^9.9.0",
+    "newrelic": "^12.15.0",
     "passport": "^0.7.0",
     "passport-atprotocol": "^0.1.1",
     "prom-client": "^15.1.3",

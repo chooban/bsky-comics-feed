@@ -9,7 +9,7 @@ primary_region = 'lhr'
 [build]
 
 [processes]
-app = "node dist/index.js"
+app = "node -r newrelic dist/index.js"
 
 [http_service]
 internal_port = 3000
@@ -32,6 +32,7 @@ FEEDGEN_HOSTNAME = "bskyfeeds.rosshendry.com"
 FEEDGEN_SQLITE_LOCATION = "/data/comics-beta.db"
 FEEDGEN_PUBLISHER_DID = "did:plc:2n2izph6uhty5uhdx7l32p67"
 WORKERS = "1"
+NEW_RELIC_APP_NAME = "bsky_ks_feeds"
 
 [[metrics]]
 port = 3000
