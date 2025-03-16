@@ -1,7 +1,6 @@
 import { InvalidRequestError } from '@atproto/xrpc-server'
 import { Server } from '../lexicon'
 import { AppContext } from '../config'
-import { validateAuth } from '../auth'
 import { AtUri } from '@atproto/syntax'
 import { countFeedRequest } from '../metrics'
 import { buildFeed } from '../algos/kickstarter-algo'

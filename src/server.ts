@@ -16,10 +16,11 @@ import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
-import renderFeed from './pages/feed-list'
 import { RedisStore } from 'connect-redis'
 import { createClient } from 'redis'
 import { setupMetrics } from './metrics'
+import expressListEndpoints from 'express-list-endpoints'
+import renderFeed from './pages/feed-list'
 
 export class FeedGenerator {
   public app: express.Application
@@ -100,8 +101,7 @@ export class FeedGenerator {
 
     app.use(wellKnown(ctx))
 
-    app.use(metricsMiddleware)
-    app.use(server.xrpc.router)
+    app.use(metricsMiddleware, server.xrpc.router)
 
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
@@ -112,6 +112,8 @@ export class FeedGenerator {
       ensureLoggedIn({ redirectTo: '/login' }),
       bullboard('/queues', queues),
     )
+
+    console.log(expressListEndpoints(app))
 
     return new FeedGenerator(app, db, firehose, cfg, queues[0])
   }

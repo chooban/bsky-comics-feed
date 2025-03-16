@@ -2968,6 +2968,11 @@ expect@^29.0.0, expect@^29.7.0:
     jest-message-util "^29.7.0"
     jest-util "^29.7.0"
 
+express-list-endpoints@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/express-list-endpoints/-/express-list-endpoints-7.1.1.tgz#f261b146e6a75e9c185bd14054b4800bf99681b2"
+  integrity sha512-SA6YHH1r6DrioJ4fFJNqiwu1FweGFqJZO9KBApMzwPosoSGPOX2AW0wiMepOXjojjEXDuP9whIvckomheErbJA==
+
 express-prom-bundle@^8.0.0:
   version "8.0.0"
   resolved "https://registry.npmjs.org/express-prom-bundle/-/express-prom-bundle-8.0.0.tgz"
