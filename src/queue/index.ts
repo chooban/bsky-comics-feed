@@ -1,15 +1,16 @@
 import { Queue, Worker, WorkerOptions } from 'bullmq'
 import { Config } from '../config'
 import { KyselyDatabase } from '../db'
-import { NewPost, newPostsWorker } from './new-post-worker'
+import { NewPost, newPostProcessor } from './new-post-worker'
 import { deletePostsWorker } from './delete-posts-worker'
 import IORedis from 'ioredis'
+import { default as BetterQueue } from 'better-queue'
 
 export const NEW_POST_QUEUE = 'newposts'
 export const KICKSTARTER_QUEUE = 'projects'
 export const DELETE_POSTS_QUEUE = 'deleteposts'
 
-let postsQueue: Queue | undefined = undefined
+let postsQueue: BetterQueue | undefined = undefined
 let projectsQueue: Queue | undefined = undefined
 let deletePostsQueue: Queue | undefined = undefined
 
@@ -17,7 +18,8 @@ export const scheduleNewPostTask = async (post: NewPost) => {
   if (postsQueue === undefined) {
     throw new Error('Posts queue is undefined')
   }
-  return postsQueue.add(NEW_POST_QUEUE, { post: post })
+  console.log(`Adding a new post job`)
+  return postsQueue.push({ post: post })
 }
 
 export const scheduleProjectQuery = async () => {
@@ -34,7 +36,10 @@ export const scheduleProjectQuery = async () => {
   )
 }
 
-export const createQueues = (cfg: Config, db: KyselyDatabase): Queue[] => {
+export const createQueues = (
+  cfg: Config,
+  db: KyselyDatabase,
+): BetterQueue[] => {
   const connection = new IORedis(cfg.redisUrl, {
     family: cfg.redisIpvFamily,
     maxRetriesPerRequest: null,
@@ -45,34 +50,27 @@ export const createQueues = (cfg: Config, db: KyselyDatabase): Queue[] => {
     connection,
   }
 
-  postsQueue = new Queue(NEW_POST_QUEUE, {
-    connection,
-    defaultJobOptions: {
-      removeOnComplete: true,
-      removeOnFail: true,
-    },
-  })
+  postsQueue = new BetterQueue(newPostProcessor(db))
+
   projectsQueue = new Queue(KICKSTARTER_QUEUE, { connection })
   deletePostsQueue = new Queue(DELETE_POSTS_QUEUE, { connection })
 
-  const postsWorker = newPostsWorker(db, defaultWorkerOptions)
+  // postsQueue.on('task_finish', async (taskId, results) => {
+  //   for (const projectId of results) {
+  //     const project = await db
+  //       .selectFrom('project')
+  //       .selectAll()
+  //       .where('project.projectId', '=', projectId)
+  //       .executeTakeFirst()
 
-  postsWorker.on('completed', async (job) => {
-    for (const projectId of job.returnvalue) {
-      const project = await db
-        .selectFrom('project')
-        .selectAll()
-        .where('project.projectId', '=', projectId)
-        .executeTakeFirst()
+  //     if (!project) {
+  //       console.log(`Could not find project after processing a new post`)
+  //     }
+  //   }
+  // })
 
-      if (!project) {
-        console.log(`Could not find project after processing a new post`)
-      }
-    }
-  })
-
-  postsWorker.on('failed', (job, err) => {
-    console.log(`Posts job ${job!.id} has failed with ${err.message}`)
+  postsQueue.on('task_failed', (job, err) => {
+    console.log(`Posts job ${job!.id} has failed with ${err}`)
   })
 
   projectsQueue.upsertJobScheduler(
@@ -109,5 +107,5 @@ export const createQueues = (cfg: Config, db: KyselyDatabase): Queue[] => {
 
   deletePostsWorker(db, defaultWorkerOptions)
 
-  return [postsQueue, projectsQueue]
+  return [postsQueue]
 }

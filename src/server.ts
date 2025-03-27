@@ -9,8 +9,6 @@ import { clearOldJobs, createDb, Database, migrateToLatest } from './db'
 import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
-import bullboard from './bullboard'
-import { Queue } from 'bullmq'
 import { createQueues } from './queue'
 import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
@@ -28,20 +26,20 @@ export class FeedGenerator {
   public db: Database
   public firehose: FirehoseSubscription
   public cfg: Config
-  public newPostQueue: Queue
+  // public newPostQueue: BetterQueue
 
   constructor(
     app: express.Application,
     db: Database,
     firehose: FirehoseSubscription,
     cfg: Config,
-    queue: Queue,
+    // queue: BetterQueue,
   ) {
     this.app = app
     this.db = db
     this.firehose = firehose
     this.cfg = cfg
-    this.newPostQueue = queue
+    // this.newPostQueue = queue
   }
 
   static create(cfg: Config) {
@@ -58,7 +56,7 @@ export class FeedGenerator {
     configureAtproto(app, cfg)
 
     const db = createDb(cfg.sqliteLocation)
-    const queues = createQueues(cfg, db.kysely)
+    createQueues(cfg, db.kysely)
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
@@ -110,11 +108,11 @@ export class FeedGenerator {
       res.render('login', { invalid: req.query.invalid === 'true' })
     })
     app.get('/', ensureLoggedIn({ redirectTo: '/login' }), renderFeed())
-    app.use(
-      '/queues',
-      ensureLoggedIn({ redirectTo: '/login' }),
-      bullboard('/queues', queues),
-    )
+    // app.use(
+    //   '/queues',
+    //   ensureLoggedIn({ redirectTo: '/login' }),
+    //   bullboard('/queues', queues),
+    // )
 
     console.log(expressListEndpoints(app))
 
@@ -123,7 +121,7 @@ export class FeedGenerator {
       db,
       new FirehoseSubscription(ctx, cfg.subscriptionEndpoint),
       cfg,
-      queues[0],
+      // queues[0],
     )
   }
 
