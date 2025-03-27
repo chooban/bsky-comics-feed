@@ -1,18 +1,18 @@
-import { Queue, Worker, WorkerOptions } from 'bullmq'
 import { Config } from '../config'
 import { KyselyDatabase } from '../db'
 import { NewPost, newPostProcessor } from './new-post-worker'
 import { deletePostsWorker } from './delete-posts-worker'
-import IORedis from 'ioredis'
 import { default as BetterQueue } from 'better-queue'
+import projectsWorker from './project-worker'
+import cron from 'node-cron'
 
 export const NEW_POST_QUEUE = 'newposts'
 export const KICKSTARTER_QUEUE = 'projects'
 export const DELETE_POSTS_QUEUE = 'deleteposts'
 
 let postsQueue: BetterQueue | undefined = undefined
-let projectsQueue: Queue | undefined = undefined
-let deletePostsQueue: Queue | undefined = undefined
+let projectsQueue: BetterQueue | undefined = undefined
+let deletePostsQueue: BetterQueue | undefined = undefined
 
 export const scheduleNewPostTask = async (post: NewPost) => {
   if (postsQueue === undefined) {
@@ -27,67 +27,27 @@ export const scheduleProjectQuery = async () => {
     throw new Error('Projects queue not confifued')
   }
   console.log(`Scheduling lookup for projects`)
-  return projectsQueue.add(
-    KICKSTARTER_QUEUE,
-    {},
-    {
-      delay: 10 * 1000,
-    },
-  )
+  return projectsQueue.push({})
 }
 
 export const createQueues = (
   cfg: Config,
   db: KyselyDatabase,
 ): BetterQueue[] => {
-  const connection = new IORedis(cfg.redisUrl, {
-    family: cfg.redisIpvFamily,
-    maxRetriesPerRequest: null,
-  })
-  const defaultWorkerOptions: WorkerOptions = {
-    drainDelay: 120,
-    concurrency: cfg.workerParallelism,
-    connection,
-  }
-
   postsQueue = new BetterQueue(newPostProcessor(db))
-
-  projectsQueue = new Queue(KICKSTARTER_QUEUE, { connection })
-  deletePostsQueue = new Queue(DELETE_POSTS_QUEUE, { connection })
-
-  // postsQueue.on('task_finish', async (taskId, results) => {
-  //   for (const projectId of results) {
-  //     const project = await db
-  //       .selectFrom('project')
-  //       .selectAll()
-  //       .where('project.projectId', '=', projectId)
-  //       .executeTakeFirst()
-
-  //     if (!project) {
-  //       console.log(`Could not find project after processing a new post`)
-  //     }
-  //   }
-  // })
+  projectsQueue = new BetterQueue(projectsWorker)
+  deletePostsQueue = new BetterQueue(deletePostsWorker(db))
 
   postsQueue.on('task_failed', (job, err) => {
     console.log(`Posts job ${job!.id} has failed with ${err}`)
   })
 
-  projectsQueue.upsertJobScheduler(
-    'check-every-30-mins',
-    {
-      pattern: '*/30 * * * *',
-    },
-    { name: 'project-lookup' },
-  )
+  cron.schedule('*/30 * * * *', () => {
+    scheduleProjectQuery()
+    deletePostsQueue?.push({})
+  })
 
-  const projectsWorker = new Worker(
-    KICKSTARTER_QUEUE,
-    `${__dirname}/project-worker.js`,
-    defaultWorkerOptions,
-  )
-
-  projectsWorker.on('failed', async (job, e) => {
+  projectsQueue.on('task_failed', async (job, e) => {
     console.log(`Projects job failed: ${e}`)
 
     await db
@@ -96,16 +56,6 @@ export const createQueues = (
       .where('project.isIndexing', '=', 1)
       .execute()
   })
-
-  deletePostsQueue.upsertJobScheduler(
-    'delete-posts-schedule',
-    {
-      pattern: '*/30 * * * *',
-    },
-    { name: 'post-deletion' },
-  )
-
-  deletePostsWorker(db, defaultWorkerOptions)
 
   return [postsQueue]
 }

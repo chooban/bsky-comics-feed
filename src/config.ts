@@ -22,8 +22,6 @@ export type Config = {
   serviceDid: string
   publisherDid: string
   subscriptionReconnectDelay: number
-  redisUrl: string
-  redisIpvFamily: number
   permittedUsers: string[]
   feeds: Record<string, Feed>
   workerParallelism: number
@@ -117,8 +115,6 @@ export const buildConfig = (): Config => {
       maybeInt(process.env.FEEDGEN_SUBSCRIPTION_RECONNECT_DELAY) ?? 3000,
     hostname,
     serviceDid,
-    redisUrl: maybeStr(process.env.REDIS_URL) ?? 'redis://redis:6379',
-    redisIpvFamily: maybeInt(process.env.REDIS_IPV_FAMILY) ?? 4,
     permittedUsers,
     feeds: feedsConfig,
     workerParallelism: maybeInt(process.env.WORKERS) ?? 1,

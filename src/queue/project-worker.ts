@@ -6,7 +6,7 @@ import { Selectable } from 'kysely'
 import { Project } from '../db/schema'
 import { scheduleProjectQuery } from '.'
 
-export default async () => {
+export default async (job, cb) => {
   const appConfig = buildConfig()
   const { kysely: db } = createDb(appConfig.sqliteLocation)
 
@@ -29,7 +29,7 @@ export default async () => {
 
   if (projects.length === 0) {
     console.log(`Could not find any projects to query`)
-    return
+    return cb()
   }
 
   const shouldQuery = async (p: Selectable<Project>) => {
@@ -56,9 +56,9 @@ export default async () => {
         .where('project.projectId', '=', p.projectId)
         .execute()
 
-      return false
+      return cb(null, false)
     }
-    return true
+    return cb(null, true)
   }
 
   const projectsToQuery = projects.filter(shouldQuery)
@@ -118,4 +118,6 @@ export default async () => {
   // Since we limit the number of projects queried at a time to try and prevent 403s, we will schedule
   // another one now. If it fails to lock any rows, it'll return and we'll wait another half hour
   scheduleProjectQuery()
+
+  cb()
 }

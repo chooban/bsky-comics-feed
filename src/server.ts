@@ -14,7 +14,6 @@ import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
-import { createClient } from 'redis'
 import { setupMetrics } from './metrics'
 import expressListEndpoints from 'express-list-endpoints'
 import renderFeed from './pages/feed-list'
@@ -26,31 +25,22 @@ export class FeedGenerator {
   public db: Database
   public firehose: FirehoseSubscription
   public cfg: Config
-  // public newPostQueue: BetterQueue
 
   constructor(
     app: express.Application,
     db: Database,
     firehose: FirehoseSubscription,
     cfg: Config,
-    // queue: BetterQueue,
   ) {
     this.app = app
     this.db = db
     this.firehose = firehose
     this.cfg = cfg
-    // this.newPostQueue = queue
   }
 
   static create(cfg: Config) {
     const app = express()
     const metricsMiddleware = setupMetrics()
-    const redisClient = createClient({
-      url: cfg.redisUrl,
-    })
-
-    redisClient.connect().catch(console.error)
-
     app.set('views', __dirname + '/views')
     app.set('view engine', 'ejs')
     configureAtproto(app, cfg)
@@ -108,12 +98,6 @@ export class FeedGenerator {
       res.render('login', { invalid: req.query.invalid === 'true' })
     })
     app.get('/', ensureLoggedIn({ redirectTo: '/login' }), renderFeed())
-    // app.use(
-    //   '/queues',
-    //   ensureLoggedIn({ redirectTo: '/login' }),
-    //   bullboard('/queues', queues),
-    // )
-
     console.log(expressListEndpoints(app))
 
     return new FeedGenerator(
@@ -121,7 +105,6 @@ export class FeedGenerator {
       db,
       new FirehoseSubscription(ctx, cfg.subscriptionEndpoint),
       cfg,
-      // queues[0],
     )
   }
 
