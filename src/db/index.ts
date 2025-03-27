@@ -4,21 +4,25 @@ import { DatabaseSchema } from './schema'
 import { migrationProvider } from './migrations'
 
 export const createDb = (location: string): Database => {
-  return new Kysely<DatabaseSchema>({
-    dialect: new SqliteDialect({
-      database: new SqliteDb(location),
+  const sqliteDatabase = new SqliteDb(location)
+  return {
+    kysely: new Kysely<DatabaseSchema>({
+      dialect: new SqliteDialect({
+        database: sqliteDatabase,
+      }),
     }),
-  })
+    database: sqliteDatabase,
+  }
 }
 
 export const migrateToLatest = async (db: Database) => {
-  const migrator = new Migrator({ db, provider: migrationProvider })
+  const migrator = new Migrator({ db: db.kysely, provider: migrationProvider })
   const { error } = await migrator.migrateToLatest()
   if (error) throw error
 }
 
 export const clearOldJobs = async (db: Database) => {
-  await db
+  await db.kysely
     .updateTable('project')
     .set({
       isIndexing: 0,
@@ -27,4 +31,9 @@ export const clearOldJobs = async (db: Database) => {
     .execute()
 }
 
-export type Database = Kysely<DatabaseSchema>
+export type KyselyDatabase = Kysely<DatabaseSchema>
+
+export type Database = {
+  kysely: KyselyDatabase
+  database: SqliteDb.Database
+}

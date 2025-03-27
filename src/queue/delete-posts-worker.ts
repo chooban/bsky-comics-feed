@@ -1,6 +1,6 @@
 import { Worker, WorkerOptions } from 'bullmq'
 import { DELETE_POSTS_QUEUE } from '.'
-import { Database } from '../db'
+import { KyselyDatabase } from '../db'
 import { sql } from 'kysely'
 
 export type NewPost = {
@@ -11,7 +11,10 @@ export type NewPost = {
   createdAt: string
 }
 
-export const deletePostsWorker = (db: Database, config: WorkerOptions) => {
+export const deletePostsWorker = (
+  db: KyselyDatabase,
+  config: WorkerOptions,
+) => {
   const tidyWorker = new Worker<undefined, undefined>(
     DELETE_POSTS_QUEUE,
     async () => {

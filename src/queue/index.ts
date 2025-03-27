@@ -1,6 +1,6 @@
 import { Queue, Worker, WorkerOptions } from 'bullmq'
 import { Config } from '../config'
-import { Database } from '../db'
+import { KyselyDatabase } from '../db'
 import { NewPost, newPostsWorker } from './new-post-worker'
 import { deletePostsWorker } from './delete-posts-worker'
 import IORedis from 'ioredis'
@@ -34,7 +34,7 @@ export const scheduleProjectQuery = async () => {
   )
 }
 
-export const createQueues = (cfg: Config, db: Database): Queue[] => {
+export const createQueues = (cfg: Config, db: KyselyDatabase): Queue[] => {
   const connection = new IORedis(cfg.redisUrl, {
     family: cfg.redisIpvFamily,
     maxRetriesPerRequest: null,

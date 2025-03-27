@@ -16,11 +16,11 @@ import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto'
-import { RedisStore } from 'connect-redis'
 import { createClient } from 'redis'
 import { setupMetrics } from './metrics'
 import expressListEndpoints from 'express-list-endpoints'
 import renderFeed from './pages/feed-list'
+import SqliteStore from 'better-sqlite3-session-store'
 
 export class FeedGenerator {
   public app: express.Application
@@ -52,29 +52,13 @@ export class FeedGenerator {
     })
 
     redisClient.connect().catch(console.error)
-    const redisStore = new RedisStore({
-      client: redisClient,
-      prefix: 'myapp:',
-    })
 
     app.set('views', __dirname + '/views')
     app.set('view engine', 'ejs')
-    app.use(
-      session({
-        store: redisStore,
-        secret: 'keyboard cat',
-        saveUninitialized: true,
-        resave: false,
-      }),
-    )
-
-    app.use(passport.initialize())
-    app.use(passport.session())
-
     configureAtproto(app, cfg)
 
     const db = createDb(cfg.sqliteLocation)
-    const queues = createQueues(cfg, db)
+    const queues = createQueues(cfg, db.kysely)
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
@@ -91,17 +75,36 @@ export class FeedGenerator {
       },
     })
     const ctx: AppContext = {
-      db,
+      db: db.kysely,
       didResolver,
       cfg,
     }
-    const firehose = new FirehoseSubscription(ctx, cfg.subscriptionEndpoint)
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
 
     app.use(wellKnown(ctx))
 
-    app.use(metricsMiddleware, server.xrpc.router)
+    app.use(metricsMiddleware)
+    app.use(server.xrpc.router)
+    const sqliteSessionStore = SqliteStore(session)
+    app.use(
+      /\/((?!metrics).)*/,
+      session({
+        store: new sqliteSessionStore({
+          client: db.database,
+          expired: {
+            clear: true,
+            intervalMs: 900000, //ms = 15min
+          },
+        }),
+        secret: process.env.SESSION_SECRET ?? 'default secret key',
+        resave: false,
+        saveUninitialized: false,
+      }),
+    )
+
+    app.use(/\/((?!metrics).)*/, passport.initialize())
+    app.use(/\/((?!metrics).)*/, passport.session())
 
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
@@ -115,7 +118,13 @@ export class FeedGenerator {
 
     console.log(expressListEndpoints(app))
 
-    return new FeedGenerator(app, db, firehose, cfg, queues[0])
+    return new FeedGenerator(
+      app,
+      db,
+      new FirehoseSubscription(ctx, cfg.subscriptionEndpoint),
+      cfg,
+      queues[0],
+    )
   }
 
   async start(): Promise<http.Server> {

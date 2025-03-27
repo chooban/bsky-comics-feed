@@ -2119,6 +2119,13 @@ base64url@^3.0.1:
   resolved "https://registry.npmjs.org/base64url/-/base64url-3.0.1.tgz"
   integrity sha512-ir1UPr3dkwexU7FdV8qBBbNDRUhMmIekYMFZfi+C/sLNnRESKPl23nB9b2pltqfOQNnGzsDdId90AEtG5tCx4A==
 
+better-sqlite3-session-store@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3-session-store/-/better-sqlite3-session-store-0.1.0.tgz#0b512cb061a3ad0ddfef7bc1e6b46597056eaa1f"
+  integrity sha512-O4EO5jOGTEa/c1DbZpP3C7VTDLSWe5lrOu1S/j86ipdGZxrSb8bSUVuRgWCgl/SCgEGmyeEqvlMY9HtyOSMOWA==
+  dependencies:
+    date-fns "2.16.1"
+
 better-sqlite3@^11.8.1:
   version "11.8.1"
   resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-11.8.1.tgz#bcb1c494984065a7ed76a5df5ecbcb0f068d47fa"
@@ -2475,11 +2482,6 @@ connect-ensure-login@^0.1.1:
   resolved "https://registry.npmjs.org/connect-ensure-login/-/connect-ensure-login-0.1.1.tgz"
   integrity sha512-u0LGY/YXgkqdD4uVz8Gkri0adby5SBPYIFQvIa4FjBIaZUN0yuZPVHsjAA2bUiprGyjh8NlqxPUcIzzfTiXhQQ==
 
-connect-redis@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/connect-redis/-/connect-redis-8.0.1.tgz#83d4d829ee968b9d64da9a6f40fe1ea3046bf835"
-  integrity sha512-7iOI214/r15ahvu0rqKCHhsgpMdOgyLwqlw/icSTnnAR75xFvMyfxAE+je4M87rZLjDlKzKcTc48XxQXYFsMgA==
-
 content-disposition@0.5.4:
   version "0.5.4"
   resolved "https://registry.npmjs.org/content-disposition/-/content-disposition-0.5.4.tgz"
@@ -2563,6 +2565,11 @@ cross-spawn@^7.0.3, cross-spawn@^7.0.6:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+date-fns@2.16.1:
+  version "2.16.1"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.16.1.tgz#05775792c3f3331da812af253e1a935851d3834b"
+  integrity sha512-sAJVKx/FqrLYHAQeN7VpJrPhagZc9R4ImZIWYRFZaaohR3KzmuK88touwsSwSVT8Qcbd4zoDsnGfX4GFB4imyQ==
 
 date-format@^4.0.14:
   version "4.0.14"

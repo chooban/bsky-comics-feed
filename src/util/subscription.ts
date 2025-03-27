@@ -11,13 +11,13 @@ import {
   OutputSchema as RepoEvent,
   isCommit,
 } from '../lexicon/types/com/atproto/sync/subscribeRepos'
-import { Database } from '../db'
+import { KyselyDatabase } from '../db'
 
 export abstract class FirehoseSubscriptionBase {
   public sub: Subscription<RepoEvent>
 
   constructor(
-    public db: Database,
+    public db: KyselyDatabase,
     public service: string,
   ) {
     this.sub = new Subscription({

@@ -8,7 +8,7 @@ import { scheduleProjectQuery } from '.'
 
 export default async () => {
   const appConfig = buildConfig()
-  const db = createDb(appConfig.sqliteLocation)
+  const { kysely: db } = createDb(appConfig.sqliteLocation)
 
   console.log(`Locking projects to query`)
   const projects = await db

@@ -1,7 +1,7 @@
 import { Worker, WorkerOptions } from 'bullmq'
 import { NEW_POST_QUEUE } from '.'
 import { findOrCreateProject } from '../db/projects'
-import { Database } from '../db'
+import { KyselyDatabase } from '../db'
 import { createUUID, UUID } from '../types/uuid'
 import { isKickstarterUrl } from '../util/kickstarter'
 
@@ -17,7 +17,7 @@ export type NewPostTask = {
   post: NewPost
 }
 
-export const newPostsWorker = (db: Database, config: WorkerOptions) => {
+export const newPostsWorker = (db: KyselyDatabase, config: WorkerOptions) => {
   const postsWorker = new Worker<NewPostTask, UUID[]>(
     NEW_POST_QUEUE,
     async (job) => {
