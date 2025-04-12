@@ -14,7 +14,7 @@ let postsQueue: BetterQueue | undefined = undefined
 let projectsQueue: BetterQueue | undefined = undefined
 let deletePostsQueue: BetterQueue | undefined = undefined
 
-export const scheduleNewPostTask = async (post: NewPost) => {
+export const scheduleNewPostTask = (post: NewPost) => {
   if (postsQueue === undefined) {
     throw new Error('Posts queue is undefined')
   }
@@ -22,7 +22,7 @@ export const scheduleNewPostTask = async (post: NewPost) => {
   return postsQueue.push({ post: post })
 }
 
-export const scheduleProjectQuery = async () => {
+export const scheduleProjectQuery = () => {
   if (projectsQueue === undefined) {
     throw new Error('Projects queue not confifued')
   }

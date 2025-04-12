@@ -35,6 +35,8 @@ services:
       PRIVATE_KEY_2: ${PRIVATE_KEY_2}
       PRIVATE_KEY_3: ${PRIVATE_KEY_3}
       APIFY_TOKEN: ${APIFY_TOKEN}
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_APP_NAME:-''}
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:-''}
 
     networks:
       - app-network

@@ -12,6 +12,7 @@ import {
   isCommit,
 } from '../lexicon/types/com/atproto/sync/subscribeRepos'
 import { KyselyDatabase } from '../db'
+import newrelic from 'newrelic'
 
 export abstract class FirehoseSubscriptionBase {
   public sub: Subscription<RepoEvent>
@@ -128,7 +129,7 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
   return opsByType
 }
 
-type OperationsByType = {
+export type OperationsByType = {
   posts: Operations<Post.Record>
   reposts: Operations<Repost.Record>
   likes: Operations<Like.Record>
