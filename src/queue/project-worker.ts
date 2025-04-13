@@ -6,6 +6,12 @@ import { Selectable } from 'kysely'
 import { Project } from '../db/schema'
 import { scheduleProjectQuery } from '.'
 
+const asyncFilter = async <F>(arr: Array<F>, predicate) => {
+  const results = await Promise.all(arr.map(predicate))
+
+  return arr.filter((_v, index) => results[index])
+}
+
 export default async (job, cb) => {
   const appConfig = buildConfig()
   const { kysely: db } = createDb(appConfig.sqliteLocation)
@@ -16,14 +22,6 @@ export default async (job, cb) => {
     .set({ isIndexing: 1 })
     .where('isIndexing', '=', 0)
     .where('indexedAt', 'is', null)
-    // .where((eb) =>
-    //   eb.or([
-    //     eb('indexedAt', 'is', null),
-    //     eb('indexedAt', 'is not', null)
-    //       .and('parentCategory', 'is', null)
-    //       .and('category', '!=', UNKNOWN),
-    //   ]),
-    // )
     .returningAll()
     .execute()
 
@@ -56,12 +54,12 @@ export default async (job, cb) => {
         .where('project.projectId', '=', p.projectId)
         .execute()
 
-      return cb(null, false)
+      return false
     }
-    return cb(null, true)
+    return true
   }
 
-  const projectsToQuery = projects.filter(shouldQuery)
+  const projectsToQuery = await asyncFilter(projects, shouldQuery)
   const urlsToQuery = projectsToQuery.map((p) => p.uri)
 
   const client = new ApifyClient({
