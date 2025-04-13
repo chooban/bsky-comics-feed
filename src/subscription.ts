@@ -6,6 +6,7 @@ import {
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 import { getKickstarterLinks } from './util/records'
 import { scheduleNewPostTask } from './queue'
+import { NewPost } from './queue/new-post-worker'
 
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   constructor(
@@ -20,11 +21,12 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 
     const ops = await getOpsByType(evt)
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
-    const postsToCreate = ops.posts.creates
+    const postsToCreate: Array<NewPost> = ops.posts.creates
       .map((create) => {
         return {
           uri: create.uri,
           cid: create.cid,
+          author: create.author,
           links: getKickstarterLinks(create.record),
           indexedAt: new Date().toISOString(),
           createdAt: create.record.createdAt,
@@ -42,8 +44,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     }
 
     if (postsToCreate.length > 0) {
-      postsToCreate.forEach(async (element) => {
-        await scheduleNewPostTask(element)
+      postsToCreate.forEach((element) => {
+        scheduleNewPostTask(element)
       })
     }
   }

@@ -7,6 +7,7 @@ export type NewPost = {
   uri: string
   cid: string
   links: string[]
+  author: string
   indexedAt: string
   createdAt: string
 }
@@ -42,6 +43,7 @@ export const newPostProcessor =
           projectId: projectId,
           uri: job.post.uri,
           cid: job.post.cid,
+          author: job.post.author,
           indexedAt: job.post.indexedAt,
           createdAt: job.post.createdAt,
         })

@@ -11,6 +11,7 @@ export type Post = {
   projectId: UUID
   uri: string
   cid: string
+  author: string
   indexedAt: string
   createdAt: string
 }

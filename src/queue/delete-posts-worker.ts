@@ -1,14 +1,6 @@
 import { KyselyDatabase } from '../db'
 import { sql } from 'kysely'
 
-export type NewPost = {
-  uri: string
-  cid: string
-  links: string[]
-  indexedAt: string
-  createdAt: string
-}
-
 export const deletePostsWorker = (db: KyselyDatabase) => async (job, cb) => {
   console.log(`Deleting old posts`)
   const dateLimit = new Date()
