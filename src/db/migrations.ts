@@ -108,3 +108,12 @@ migrations['007'] = {
     await db.schema.alterTable('post').dropColumn('author').execute()
   },
 }
+
+migrations['008'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema.alterTable('project').addColumn('details', 'json').execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.alterTable('project').dropColumn('details').execute()
+  },
+}

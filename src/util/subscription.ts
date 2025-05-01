@@ -12,7 +12,6 @@ import {
   isCommit,
 } from '../lexicon/types/com/atproto/sync/subscribeRepos'
 import { KyselyDatabase } from '../db'
-import newrelic from 'newrelic'
 
 export abstract class FirehoseSubscriptionBase {
   public sub: Subscription<RepoEvent>

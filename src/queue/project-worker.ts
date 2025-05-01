@@ -99,6 +99,7 @@ export default async (job, cb) => {
         title: (matching?.title as string) ?? UNKNOWN,
         parentCategory: (matching?.parentCategory as string) ?? UNKNOWN,
         indexedAt: new Date().toISOString(),
+        details: matching,
         isIndexing: 0,
       })
       .where('project.uri', '=', uri)
