@@ -2,7 +2,7 @@ import { InvalidRequestError } from '@atproto/xrpc-server'
 import { Server } from '../lexicon'
 import { AppContext } from '../config'
 import { AtUri } from '@atproto/syntax'
-import { countFeedRequest } from '../metrics'
+import { countFeedRequest, countFeedSize } from '../metrics'
 import { buildFeed } from '../algos/kickstarter-algo'
 
 export default function (server: Server, ctx: AppContext) {
@@ -32,7 +32,10 @@ export default function (server: Server, ctx: AppContext) {
       params,
     )
 
-    countFeedRequest(feedUri.rkey, body.feed.length)
+    countFeedRequest(feedUri.rkey)
+    if (!params.cursor) {
+      countFeedSize(feedUri.rkey, body.feed.length)
+    }
 
     return {
       encoding: 'application/json',

@@ -4,7 +4,6 @@ import { UNKNOWN } from '../db/projects'
 import { buildConfig } from '../config'
 import { Selectable } from 'kysely'
 import { Project } from '../db/schema'
-import { scheduleProjectQuery } from '.'
 
 const asyncFilter = async <F>(arr: Array<F>, predicate) => {
   const results = await Promise.all(arr.map(predicate))

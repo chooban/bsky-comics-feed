@@ -32,7 +32,10 @@ export const setupMetrics = () => {
   return metricsMiddleware
 }
 
-export const countFeedRequest = (feedId: string, itemCount: number): void => {
+export const countFeedRequest = (feedId: string): void => {
   feedRequestCounter.labels({ feed: feedId }).inc()
+}
+
+export const countFeedSize = (feedId: string, itemCount: number): void => {
   feedLengthGauge.labels({ feed: feedId }).set(itemCount)
 }
