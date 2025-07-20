@@ -32,7 +32,7 @@ export default function (server: Server, ctx: AppContext) {
       params,
     )
 
-    countFeedRequest(feedUri.rkey)
+    countFeedRequest(feedUri.rkey, body.feed.length)
 
     return {
       encoding: 'application/json',

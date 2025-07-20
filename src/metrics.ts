@@ -7,6 +7,12 @@ const feedRequestCounter = new Prometheus.Counter({
   labelNames: ['feed'],
 })
 
+const feedLengthGauge = new Prometheus.Gauge({
+  name: 'bskyfeeds_feed_length',
+  help: 'Length of the feed returned',
+  labelNames: ['feed'],
+})
+
 export const setupMetrics = () => {
   const register = new Prometheus.Registry()
   const metricsMiddleware = promBundle({
@@ -26,6 +32,7 @@ export const setupMetrics = () => {
   return metricsMiddleware
 }
 
-export const countFeedRequest = (feedId: string): void => {
+export const countFeedRequest = (feedId: string, itemCount: number): void => {
   feedRequestCounter.labels({ feed: feedId }).inc()
+  feedLengthGauge.labels({ feed: feedId }).set(itemCount)
 }
