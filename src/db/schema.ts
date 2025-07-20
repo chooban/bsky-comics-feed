@@ -27,7 +27,7 @@ export type Project = {
   title: string
   category: string
   parentCategory: string
-  details: object
+  details: object | null
   indexedAt: string | null
   isIndexing: number
   addedAt: string

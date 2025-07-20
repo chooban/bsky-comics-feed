@@ -1,7 +1,7 @@
 import { Config } from '../config'
 import { KyselyDatabase } from '../db'
 import { NewPost, newPostProcessor } from './new-post-worker'
-import { deletePostsWorker } from './delete-posts-worker'
+// import { deletePostsWorker } from './delete-posts-worker'
 import { default as BetterQueue } from 'better-queue'
 import projectsWorker from './project-worker'
 import cron from 'node-cron'
@@ -12,7 +12,7 @@ export const DELETE_POSTS_QUEUE = 'deleteposts'
 
 let postsQueue: BetterQueue | undefined = undefined
 let projectsQueue: BetterQueue | undefined = undefined
-let deletePostsQueue: BetterQueue | undefined = undefined
+// let deletePostsQueue: BetterQueue | undefined = undefined
 
 export const scheduleNewPostTask = (post: NewPost) => {
   if (postsQueue === undefined) {
@@ -36,7 +36,7 @@ export const createQueues = (
 ): BetterQueue[] => {
   postsQueue = new BetterQueue(newPostProcessor(db))
   projectsQueue = new BetterQueue(projectsWorker)
-  deletePostsQueue = new BetterQueue(deletePostsWorker(db))
+  // deletePostsQueue = new BetterQueue(deletePostsWorker(db))
 
   postsQueue.on('task_failed', (job, err) => {
     console.log(`Posts job ${job!.id} has failed with ${err}`)
@@ -44,7 +44,7 @@ export const createQueues = (
 
   cron.schedule('*/30 * * * *', () => {
     scheduleProjectQuery()
-    deletePostsQueue?.push({})
+    // deletePostsQueue?.push({})
   })
 
   projectsQueue.on('task_failed', async (job, e) => {

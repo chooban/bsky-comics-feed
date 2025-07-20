@@ -28,6 +28,7 @@ export const newPostProcessor =
     const projectIds: UUID[] = []
     for (const l of job.post.links) {
       if (!isKickstarterUrl(l)) {
+        console.log(`Ignoring ${l}`)
         continue
       }
       const projectId = await findOrCreateProject(db, l)
@@ -36,7 +37,8 @@ export const newPostProcessor =
         continue
       }
 
-      await db
+      console.log(`Inserting new post for project ${projectId}`)
+      const inserted = await db
         .insertInto('post')
         .values({
           postId: createUUID(),

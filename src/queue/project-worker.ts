@@ -48,6 +48,7 @@ export default async (job, cb) => {
           category: existingByUri.category,
           title: existingByUri.title,
           parentCategory: existingByUri.parentCategory,
+          details: existingByUri.details,
           indexedAt: new Date().toISOString(),
           isIndexing: 0,
         })
@@ -67,21 +68,23 @@ export default async (job, cb) => {
   })
 
   // Starts an actor and waits for it to finish.
-  console.log(`Querying Apify for ${urlsToQuery}`)
+  const limitedUrlsToQuery = urlsToQuery.map((p) => ({ url: p })).slice(0, 5)
+  console.log(`Querying Apify for ${limitedUrlsToQuery}`)
+
   const { defaultDatasetId } = await client
     .actor('chooban/apify-kickstarter-project')
     .call(
-      { projectUrls: urlsToQuery.map((p) => ({ url: p })) },
+      { projectUrls: limitedUrlsToQuery },
       {
-        waitSecs: 120,
-        maxItems: 10,
+        waitSecs: 60,
+        maxItems: 5,
       },
     )
 
   const { items } = await client.dataset(defaultDatasetId).listItems()
 
   if (items.length == 0) {
-    console.log(`Apparently could not find anything for ${projectsToQuery}`)
+    console.log(`Apparently could not find anything for ${limitedUrlsToQuery}`)
   }
 
   for (const matching of items) {

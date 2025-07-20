@@ -2,6 +2,7 @@ import SqliteDb from 'better-sqlite3'
 import { Kysely, Migrator, SqliteDialect } from 'kysely'
 import { DatabaseSchema } from './schema'
 import { migrationProvider } from './migrations'
+import { SerializePlugin } from 'kysely-plugin-serialize'
 
 export const createDb = (location: string): Database => {
   const sqliteDatabase = new SqliteDb(location)
@@ -10,6 +11,7 @@ export const createDb = (location: string): Database => {
       dialect: new SqliteDialect({
         database: sqliteDatabase,
       }),
+      plugins: [new SerializePlugin()],
     }),
     database: sqliteDatabase,
   }
