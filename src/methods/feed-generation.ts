@@ -14,6 +14,7 @@ export default function (server: Express, ctx: AppContext) {
   server.get(
     '/xrpc/app.bsky.feed.getFeedSkeleton',
     async (req: Request, res: Response, next) => {
+      console.log(`Received feed request`)
       const { query } = req
       const feed = query.feed as string
       const cursor = query.cursor ? (query.cursor as string) : undefined
