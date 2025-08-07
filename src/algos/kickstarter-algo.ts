@@ -1,5 +1,5 @@
-import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
+import { QueryParams } from '../methods/feed-generation.js'
 
 export const buildFeed = (
   parentCategory: string | undefined,
