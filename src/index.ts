@@ -1,5 +1,5 @@
-import FeedGenerator from './server'
-import { buildConfig } from './config'
+import FeedGenerator from './server.js'
+import { buildConfig } from './config.js'
 
 const run = async () => {
   const config = buildConfig()

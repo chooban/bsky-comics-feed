@@ -1,8 +1,7 @@
 import dotenv from 'dotenv'
 import { AtpAgent, BlobRef } from '@atproto/api'
-import fs from 'fs/promises'
-import { ids } from '../src/lexicon/lexicons'
 import inquirer from 'inquirer'
+import { AppBskyFeedGenerator } from '@atcute/bluesky'
 
 const run = async () => {
   dotenv.config()
@@ -61,7 +60,7 @@ const run = async () => {
 
   await agent.api.com.atproto.repo.deleteRecord({
     repo: agent.session?.did ?? '',
-    collection: ids.AppBskyFeedGenerator,
+    collection: AppBskyFeedGenerator.mainSchema.type,
     rkey: recordName,
   })
 

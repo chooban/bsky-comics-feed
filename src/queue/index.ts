@@ -1,9 +1,9 @@
-import { Config } from '../config'
-import { KyselyDatabase } from '../db'
-import { NewPost, newPostProcessor } from './new-post-worker'
+import { Config } from '../config.js'
+import { KyselyDatabase } from '../db/index.js'
+import { NewPost, newPostProcessor } from './new-post-worker.js'
 // import { deletePostsWorker } from './delete-posts-worker'
 import { default as BetterQueue } from 'better-queue'
-import projectsWorker from './project-worker'
+import projectsWorker from './project-worker.js'
 import cron from 'node-cron'
 
 export const NEW_POST_QUEUE = 'newposts'

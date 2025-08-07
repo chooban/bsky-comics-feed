@@ -1,8 +1,9 @@
 import SqliteDb from 'better-sqlite3'
 import { Kysely, Migrator, SqliteDialect } from 'kysely'
-import { DatabaseSchema } from './schema'
-import { migrationProvider } from './migrations'
+import { DatabaseSchema } from './schema.js'
+import { migrationProvider } from './migrations.js'
 import { SerializePlugin } from 'kysely-plugin-serialize'
+export { findOrCreateProject } from './projects.js'
 
 export const createDb = (location: string): Database => {
   const sqliteDatabase = new SqliteDb(location)

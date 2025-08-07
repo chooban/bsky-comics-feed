@@ -10,11 +10,10 @@
       }
     ],
     "outDir": "dist",
-    // "module": "esnext",
-    "target": "esnext",
+    "module": "es2022",
+    "target": "es2022",
     "esModuleInterop": true,
     "moduleResolution": "bundler",
-    "module": "es2022",
     "alwaysStrict": true,
     "allowUnreachableCode": false,
     "strictNullChecks": true,

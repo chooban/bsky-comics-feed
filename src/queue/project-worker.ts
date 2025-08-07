@@ -1,9 +1,9 @@
-import { createDb } from '../db'
+import { createDb } from '../db/index.js'
 import { ApifyClient } from 'apify-client'
-import { UNKNOWN } from '../db/projects'
-import { buildConfig } from '../config'
+import { UNKNOWN } from '../db/projects.js'
+import { buildConfig } from '../config.js'
 import { Selectable } from 'kysely'
-import { Project } from '../db/schema'
+import { Project } from '../db/schema.js'
 
 const asyncFilter = async <F>(arr: Array<F>, predicate) => {
   const results = await Promise.all(arr.map(predicate))

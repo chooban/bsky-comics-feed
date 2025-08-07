@@ -1,8 +1,7 @@
-import { buildConfig } from '../config'
-import { createDb } from '../db'
-import { findOrCreateProject } from '../db/projects'
-import { createUUID, UUID } from '../types/uuid'
-import { isKickstarterUrl } from '../util/kickstarter'
+import { buildConfig } from '../config.js'
+import { createDb, findOrCreateProject } from '../db/index.js'
+import { createUUID, UUID } from '../types/uuid.js'
+import { isKickstarterUrl } from '../util/kickstarter.js'
 
 export type NewPost = {
   uri: string

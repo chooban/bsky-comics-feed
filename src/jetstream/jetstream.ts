@@ -1,11 +1,11 @@
 import { JetstreamSubscription } from '@atcute/jetstream'
-import { AppContext } from '../config'
-import { KyselyDatabase } from '../db'
+import { AppContext } from '../config.js'
+import { KyselyDatabase } from '../db/index.js'
 import { is } from '@atcute/lexicons'
 import { AppBskyFeedPost } from '@atcute/bluesky'
-import { NewPost } from '../queue/new-post-worker'
-import { getKickstarterLinks } from '../util/records'
-// import { scheduleNewPostTask } from '../queue'
+import { NewPost } from '../queue/new-post-worker.js'
+import { getKickstarterLinks } from '../util/records.js'
+import { scheduleNewPostTask } from '../queue/index.js'
 
 export class Jetstream {
   private db: KyselyDatabase
@@ -62,19 +62,21 @@ export class Jetstream {
             const record = commit.record
             if (!is(AppBskyFeedPost.mainSchema, record)) {
               continue
-            } 
-            console.log(`${record.text}`)
-			const newPostTask: NewPost = {
-				links: getKickstarterLinks(record),
-				indexedAt: new Date().toISOString(),
-				createdAt: record.createdAt,
-				cid: commit.cid,
-				author: evt.did,
-				uri: `at://`
-			}
-			console.log({ newPostTask, commit, })
-			// scheduleNewPostTask(newPostTask)
-
+            }
+            const links = getKickstarterLinks(record)
+            if (links.length == 0) {
+              continue
+            }
+            const newPostTask: NewPost = {
+              links,
+              indexedAt: new Date().toISOString(),
+              createdAt: record.createdAt,
+              cid: commit.cid,
+              author: evt.did,
+              uri: `at://`,
+            }
+            // console.log({ newPostTask, commit })
+            scheduleNewPostTask(newPostTask)
           }
         }
       }

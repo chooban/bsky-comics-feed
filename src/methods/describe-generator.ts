@@ -1,24 +1,27 @@
-import { Server } from '../lexicon'
 import { AppContext } from '../config'
 import { AtUri } from '@atproto/syntax'
+import { Express, Request, Response } from 'express'
 
-export default function (server: Server, ctx: AppContext) {
+export default function (server: Express, ctx: AppContext) {
   const algos = ctx.cfg.feeds
 
-  server.app.bsky.feed.describeFeedGenerator(async () => {
-    const feeds = Object.keys(algos).map((shortname) => ({
-      uri: AtUri.make(
-        ctx.cfg.publisherDid,
-        'app.bsky.feed.generator',
-        shortname,
-      ).toString(),
-    }))
-    return {
-      encoding: 'application/json',
-      body: {
-        did: ctx.cfg.serviceDid,
-        feeds,
-      },
-    }
-  })
+  server.get(
+    '/xrpc/app.bsky.feed.describeFeedGenerator',
+    async (req: Request, res: Response) => {
+      const feeds = Object.keys(algos).map((shortname) => ({
+        uri: AtUri.make(
+          ctx.cfg.publisherDid,
+          'app.bsky.feed.generator',
+          shortname,
+        ).toString(),
+      }))
+      return {
+        encoding: 'application/json',
+        body: {
+          did: ctx.cfg.serviceDid,
+          feeds,
+        },
+      }
+    },
+  )
 }
