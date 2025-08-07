@@ -8,6 +8,7 @@ export default function (server: Express, ctx: AppContext) {
   server.get(
     '/xrpc/app.bsky.feed.describeFeedGenerator',
     async (req: Request, res: Response) => {
+      console.log(`Getting the feeds for the describer`)
       const feeds = Object.keys(algos).map((shortname) => ({
         uri: AtUri.make(
           ctx.cfg.publisherDid,
@@ -15,13 +16,10 @@ export default function (server: Express, ctx: AppContext) {
           shortname,
         ).toString(),
       }))
-      return {
-        encoding: 'application/json',
-        body: {
-          did: ctx.cfg.serviceDid,
-          feeds,
-        },
-      }
+      res.json({
+        did: ctx.cfg.serviceDid,
+        feeds,
+      })
     },
   )
 }

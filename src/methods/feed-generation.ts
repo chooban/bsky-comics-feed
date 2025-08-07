@@ -13,15 +13,18 @@ export interface QueryParams {
 export default function (server: Express, ctx: AppContext) {
   server.get(
     '/xrpc/app.bsky.feed.getFeedSkeleton',
-    async (req: Request, res: Response) => {
-      const { params } = req
+    async (req: Request, res: Response, next) => {
+      const { query } = req
+      const feed = query.feed as string
+      const cursor = query.cursor ? (query.cursor as string) : undefined
+      const limit = query.limit ? parseInt(query.limit as string) : 0
       const props: QueryParams = {
-        feed: params.feed,
-        limit: parseInt(params.limit ?? 0),
-        cursor: params.cursor,
+        feed,
+        limit,
+        cursor,
       }
 
-      const feedUri = new AtUri(params.feed)
+      const feedUri = new AtUri(feed)
       const algo = ctx.cfg.feeds[feedUri.rkey]
 
       if (
@@ -35,10 +38,13 @@ export default function (server: Express, ctx: AppContext) {
         console.log(`!algo (${feedUri.rkey})? ${!algo}`)
         console.log(`${Object.keys(ctx.cfg.feeds)}`)
 
-        throw new InvalidRequestError(
-          'Unsupported algorithm',
-          'UnsupportedAlgorithm',
+        next(
+          new InvalidRequestError(
+            'Unsupported algorithm',
+            'UnsupportedAlgorithm',
+          ),
         )
+        return
       }
 
       const body = await buildFeed(algo.parentCategory, algo.categories)(
@@ -47,14 +53,11 @@ export default function (server: Express, ctx: AppContext) {
       )
 
       countFeedRequest(feedUri.rkey)
-      if (!params.cursor) {
+      if (!cursor) {
         countFeedSize(feedUri.rkey, body.feed.length)
       }
 
-      return {
-        encoding: 'application/json',
-        body: body,
-      }
+      res.json(body)
     },
   )
 }
