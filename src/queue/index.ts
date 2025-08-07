@@ -34,7 +34,7 @@ export const createQueues = (
   cfg: Config,
   db: KyselyDatabase,
 ): BetterQueue[] => {
-  postsQueue = new BetterQueue(newPostProcessor(db))
+  postsQueue = new BetterQueue(newPostProcessor)
   projectsQueue = new BetterQueue(projectsWorker)
   // deletePostsQueue = new BetterQueue(deletePostsWorker(db))
 

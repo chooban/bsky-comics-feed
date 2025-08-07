@@ -23,6 +23,41 @@
     "@apify/consts" "^2.33.0"
     ansi-colors "^4.1.1"
 
+"@atcute/atproto@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@atcute/atproto/-/atproto-3.1.1.tgz#17733d822b912afe753a66ffd3f6a95a290581fb"
+  integrity sha512-D+RLTIPF0xLu7BPZY8KSewAPemJFh+3n3zeQ3ROsLxbTtCHbrTDMAmAFexaVRAPGcPYrwXaBUlv7yZjScJolMg==
+  dependencies:
+    "@atcute/lexicons" "^1.1.0"
+
+"@atcute/bluesky@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@atcute/bluesky/-/bluesky-3.2.0.tgz#f7a656d2785b045335434b62903ac9761fc5a203"
+  integrity sha512-OqPLqUNjXcgQ25MaPdU7H0QcWmZrx6QQk7d5B22A5U4xy+hZJ954kQ5mSAn24Bt0DEm4j/isq1WZovr3vaPTUA==
+  dependencies:
+    "@atcute/atproto" "^3.1.1"
+    "@atcute/lexicons" "^1.1.0"
+
+"@atcute/jetstream@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@atcute/jetstream/-/jetstream-1.0.2.tgz#3f06881da40a23383a3a08b9d0cd9772469ecf74"
+  integrity sha512-ZtdNNxl4zq9cgUpXSL9F+AsXUZt0Zuyj0V7974D7LxdMxfTItPnMZ9dRG8GoFkkGz3+pszdsG888Ix8C0F2+mA==
+  dependencies:
+    "@atcute/lexicons" "^1.0.2"
+    "@badrap/valita" "^0.4.2"
+    "@mary-ext/event-iterator" "^1.0.0"
+    "@mary-ext/simple-event-emitter" "^1.0.0"
+    partysocket "^1.1.4"
+    type-fest "^4.41.0"
+    yocto-queue "^1.2.1"
+
+"@atcute/lexicons@^1.0.2", "@atcute/lexicons@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@atcute/lexicons/-/lexicons-1.1.0.tgz#7f51a99f2af4c3536f033d7d5b52eff2eb0d4984"
+  integrity sha512-LFqwnria78xLYb62Ri/+WwQpUTgZp2DuyolNGIIOV1dpiKhFFFh//nscHMA6IExFLQRqWDs3tTjy7zv0h3sf1Q==
+  dependencies:
+    esm-env "^1.2.2"
+
 "@atproto-labs/did-resolver@0.1.4":
   version "0.1.4"
   resolved "https://registry.npmjs.org/@atproto-labs/did-resolver/-/did-resolver-0.1.4.tgz"
@@ -627,6 +662,11 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
+"@badrap/valita@^0.4.2":
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/@badrap/valita/-/valita-0.4.6.tgz#becdb603d3150f353425da610b3b258be223f90d"
+  integrity sha512-4kdqcjyxo/8RQ8ayjms47HCWZIF5981oE5nIenbfThKDxWXtEHKipAOWlflpPJzZx9y/JWYQkp18Awr7VuepFg==
+
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
@@ -1202,6 +1242,18 @@
   version "4.4.2"
   resolved "https://registry.npmjs.org/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
+
+"@mary-ext/event-iterator@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@mary-ext/event-iterator/-/event-iterator-1.0.0.tgz#a15b11fd9203cf7e4e55a791c570da63db79d8e2"
+  integrity sha512-l6gCPsWJ8aRCe/s7/oCmero70kDHgIK5m4uJvYgwEYTqVxoBOIXbKr5tnkLqUHEg6mNduB4IWvms3h70Hp9ADQ==
+  dependencies:
+    yocto-queue "^1.2.1"
+
+"@mary-ext/simple-event-emitter@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@mary-ext/simple-event-emitter/-/simple-event-emitter-1.0.0.tgz#ec48a2420c28da650811ebe990f56fdafb864738"
+  integrity sha512-meA/zJZKIN1RVBNEYIbjufkUrW7/tRjHH60FjolpG1ixJKo76TB208qefQLNdOVDA7uIG0CGEDuhmMirtHKLAg==
 
 "@newrelic/native-metrics@^11.0.0":
   version "11.0.0"
@@ -2790,6 +2842,11 @@ eslint@^9.22.0:
     natural-compare "^1.4.0"
     optionator "^0.9.3"
 
+esm-env@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/esm-env/-/esm-env-1.2.2.tgz#263c9455c55861f41618df31b20cb571fc20b75e"
+  integrity sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==
+
 espree@^10.0.1, espree@^10.3.0:
   version "10.3.0"
   resolved "https://registry.npmjs.org/espree/-/espree-10.3.0.tgz"
@@ -2845,6 +2902,11 @@ event-stream@=3.3.4:
     split "0.3"
     stream-combiner "~0.0.4"
     through "~2.3.1"
+
+event-target-polyfill@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/event-target-polyfill/-/event-target-polyfill-0.0.4.tgz#060ee66e85aaedc76b6fa66079782dcc11cba496"
+  integrity sha512-Gs6RLjzlLRdT8X9ZipJdIZI/Y6/HhRLyq9RdDlCsnpxr/+Nn6bU2EFGuC94GjxqhM+Nmij2Vcq98yoHrU8uNFQ==
 
 event-target-shim@^5.0.0:
   version "5.0.1"
@@ -4689,6 +4751,13 @@ parseurl@~1.3.3:
   resolved "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz"
   integrity sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
 
+partysocket@^1.1.4:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/partysocket/-/partysocket-1.1.5.tgz#7df1881b73782f475f1cd7c63be954d2ef0fab3f"
+  integrity sha512-8uw9foq9bij4sKLCtTSHvyqMrMTQ5FJjrHc7BjoM2s95Vu7xYCN63ABpI7OZHC7ZMP5xaom/A+SsoFPXmTV6ZQ==
+  dependencies:
+    event-target-polyfill "^0.0.4"
+
 passport-atprotocol@^0.1.1:
   version "0.1.1"
   resolved "https://registry.npmjs.org/passport-atprotocol/-/passport-atprotocol-0.1.1.tgz"
@@ -5734,6 +5803,11 @@ type-fest@^4.0.0:
   resolved "https://registry.npmjs.org/type-fest/-/type-fest-4.27.0.tgz"
   integrity sha512-3IMSWgP7C5KSQqmo1wjhKrwsvXAtF33jO3QY+Uy++ia7hqvgSK6iXbbg5PbDBc1P2ZbNEDgejOrN4YooXvhwCw==
 
+type-fest@^4.41.0:
+  version "4.41.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.41.0.tgz#6ae1c8e5731273c2bf1f58ad39cbae2c91a46c58"
+  integrity sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==
+
 type-is@~1.6.18:
   version "1.6.18"
   resolved "https://registry.npmjs.org/type-is/-/type-is-1.6.18.tgz"
@@ -5985,6 +6059,11 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+yocto-queue@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.2.1.tgz#36d7c4739f775b3cbc28e6136e21aa057adec418"
+  integrity sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==
 
 yoctocolors-cjs@^2.1.2:
   version "2.1.2"

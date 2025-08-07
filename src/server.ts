@@ -18,29 +18,37 @@ import { setupMetrics } from './metrics'
 import expressListEndpoints from 'express-list-endpoints'
 import renderFeed from './pages/feed-list'
 import SqliteStore from 'better-sqlite3-session-store'
+import { Jetstream } from './jetstream/jetstream'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
 export class FeedGenerator {
   public app: express.Application
   public server?: http.Server
   public db: Database
   public firehose: FirehoseSubscription
+  public jetstream: Jetstream
   public cfg: Config
 
   constructor(
     app: express.Application,
     db: Database,
     firehose: FirehoseSubscription,
+    jetstream: Jetstream,
     cfg: Config,
   ) {
     this.app = app
     this.db = db
     this.firehose = firehose
+    this.jetstream = jetstream
     this.cfg = cfg
   }
 
   static create(cfg: Config) {
     const app = express()
     const metricsMiddleware = setupMetrics()
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
     app.set('views', __dirname + '/views')
     app.set('view engine', 'ejs')
     configureAtproto(app, cfg)
@@ -104,6 +112,7 @@ export class FeedGenerator {
       app,
       db,
       new FirehoseSubscription(ctx, cfg.subscriptionEndpoint),
+      new Jetstream(ctx, cfg.subscriptionEndpoint),
       cfg,
     )
   }
@@ -111,6 +120,7 @@ export class FeedGenerator {
   async start(): Promise<http.Server> {
     await migrateToLatest(this.db)
     this.firehose.run(this.cfg.subscriptionReconnectDelay)
+    this.jetstream.start()
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')
     await clearOldJobs(this.db)

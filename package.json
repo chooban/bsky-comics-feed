@@ -6,6 +6,7 @@
   "repository": "git@github.com:chooban/bsky-comics-feed",
   "author": "Ross Hendry <rhendry@gmail.com>",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "publishFeed": "ts-node scripts/publishFeedGen.ts",
     "unpublishFeed": "ts-node scripts/unpublishFeedGen.ts",
@@ -16,6 +17,9 @@
     "test": "jest"
   },
   "dependencies": {
+    "@atcute/bluesky": "^3.2.0",
+    "@atcute/jetstream": "^1.0.2",
+    "@atcute/lexicons": "^1.1.0",
     "@atproto/api": "^0.14.9",
     "@atproto/identity": "^0.4.6",
     "@atproto/lexicon": "^0.4.8",
