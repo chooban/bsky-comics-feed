@@ -69,7 +69,9 @@ export default async (job, cb) => {
 
   // Starts an actor and waits for it to finish.
   const limitedUrlsToQuery = urlsToQuery.map((p) => ({ url: p })).slice(0, 5)
-  console.log(`Querying Apify for ${limitedUrlsToQuery}`)
+  console.log(
+    `Querying Apify for ${limitedUrlsToQuery.map((u) => u.url).join(',')}`,
+  )
 
   const { defaultDatasetId } = await client
     .actor('chooban/apify-kickstarter-project')
@@ -84,7 +86,9 @@ export default async (job, cb) => {
   const { items } = await client.dataset(defaultDatasetId).listItems()
 
   if (items.length == 0) {
-    console.log(`Apparently could not find anything for ${limitedUrlsToQuery}`)
+    console.log(
+      `Apparently could not find anything for ${limitedUrlsToQuery.map((u) => u.url).join(',')}`,
+    )
   }
 
   for (const matching of items) {
@@ -116,10 +120,6 @@ export default async (job, cb) => {
     .set({ isIndexing: 0 })
     .where('project.isIndexing', '=', 1)
     .execute()
-
-  // Since we limit the number of projects queried at a time to try and prevent 403s, we will schedule
-  // another one now. If it fails to lock any rows, it'll return and we'll wait another half hour
-  scheduleProjectQuery()
 
   cb()
 }
