@@ -27,5 +27,5 @@ export const getKickstarterLinks = (record: unknown): string[] => {
     }
   }
 
-  return links
+  return Array.from(new Set(links))
 }
