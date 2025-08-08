@@ -1,15 +1,15 @@
 // import { Database } from './db'
-import { DidResolver } from '@atproto/identity'
+// import { DidResolver } from '@atproto/identity'
 import dotenv from 'dotenv'
 import * as yaml from 'js-yaml'
 import * as fs from 'fs'
 import * as path from 'path'
-import { DatabaseSchema } from './db/schema'
+import { DatabaseSchema } from './db/schema.js'
 import { Kysely } from 'kysely'
 
 export type AppContext = {
   db: Kysely<DatabaseSchema>
-  didResolver: DidResolver
+  // didResolver: DidResolver
   cfg: Config
 }
 

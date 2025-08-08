@@ -137,3 +137,4 @@ db
 .env.prod
 *.db
 .DS_Store
+comics-beta.sqbpro

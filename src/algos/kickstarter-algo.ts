@@ -1,5 +1,5 @@
-import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
+import { QueryParams } from '../methods/feed-generation.js'
 
 export const buildFeed = (
   parentCategory: string | undefined,
@@ -44,9 +44,11 @@ export const buildFeed = (
     }
     const res = await builder.execute()
 
-    const feed = res.map((row) => ({
-      post: row.uri,
-    }))
+    const feed = res
+      .map((row) => ({
+        post: row.uri,
+      }))
+      .filter((p) => p.post !== 'at://') // We had some bad data
 
     let cursor: string | undefined
     const last = res.at(-1)

@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import inquirer from 'inquirer'
 import { AtpAgent, BlobRef } from '@atproto/api'
 import fs from 'fs/promises'
-import { ids } from '../src/lexicon/lexicons'
+import { AppBskyFeedGenerator } from '@atcute/bluesky'
 import path from 'path'
 import * as yaml from 'js-yaml'
 import { exit } from 'process'
@@ -97,7 +97,7 @@ Posts and threads that contain a link to a Kickstarter project in these categori
     }
     await agent.api.com.atproto.repo.putRecord({
       repo: agent.session?.did ?? '',
-      collection: ids.AppBskyFeedGenerator,
+      collection: AppBskyFeedGenerator.mainSchema.type,
       rkey,
       record: {
         did: feedGenDid,

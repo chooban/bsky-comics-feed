@@ -1,13 +1,13 @@
-import { isExternal } from '../lexicon/types/app/bsky/embed/external'
 import { RichText } from '@atproto/api'
-import { isKickstarterUrl } from './kickstarter'
-import { AppBskyFeedPost } from '@atproto/api'
+import { isKickstarterUrl } from './kickstarter.js'
+import { AppBskyFeedPost } from '@atcute/bluesky'
+import { is } from '@atcute/lexicons'
 
-export const getKickstarterLinks = (
-  record: AppBskyFeedPost.Record,
-): string[] => {
+export const getKickstarterLinks = (record: unknown): string[] => {
   const links: string[] = []
-
+  if (!is(AppBskyFeedPost.mainSchema, record)) {
+    return []
+  }
   const rt = new RichText({
     text: record.text,
     facets: record.facets,
@@ -19,10 +19,11 @@ export const getKickstarterLinks = (
     }
   }
 
-  if (record.embed && isExternal(record.embed)) {
-    if (isKickstarterUrl(record.embed.uri)) {
-      console.log(`Got one in an embed! ${record.embed.uri}`)
-      links.push(record.embed.uri)
+  const embed = record.embed
+  if (embed?.$type == 'app.bsky.embed.external') {
+    if (isKickstarterUrl(embed.external.uri)) {
+      console.log(`Got one in an embed! ${embed.external.uri}`)
+      links.push(embed.external.uri)
     }
   }
 

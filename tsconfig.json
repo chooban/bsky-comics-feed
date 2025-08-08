@@ -1,19 +1,19 @@
 
 {
   "compilerOptions": {
-    "lib": [
-      "ESNext",
-    ],
+    // "lib": [
+    //   "ESNext",
+    // ],
     "plugins": [
       {
         "name": "@yaml-js/typescript"
       }
     ],
     "outDir": "dist",
-    "module": "CommonJS",
-    "target": "ES6",
+    "module": "es2022",
+    "target": "es2022",
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "alwaysStrict": true,
     "allowUnreachableCode": false,
     "strictNullChecks": true,
