@@ -73,8 +73,9 @@ export class Jetstream {
               createdAt: record.createdAt,
               cid: commit.cid,
               author: evt.did,
-              uri: `at://`,
+              uri: `at://${evt.did}/app.bsky.feed.post/${commit.rkey}`,
             }
+            // console.log({ newPostTask, evt, record, commit })
             // console.log({ newPostTask, commit })
             scheduleNewPostTask(newPostTask)
           }

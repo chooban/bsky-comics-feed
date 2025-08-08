@@ -4,6 +4,7 @@ import { AtUri } from '@atproto/syntax'
 import { countFeedRequest, countFeedSize } from '../metrics.js'
 import { buildFeed } from '../algos/kickstarter-algo.js'
 import { Express, Request, Response } from 'express'
+import asyncHandler from 'express-async-handler'
 export interface QueryParams {
   feed: string
   limit: number
@@ -13,9 +14,10 @@ export interface QueryParams {
 export default function (server: Express, ctx: AppContext) {
   server.get(
     '/xrpc/app.bsky.feed.getFeedSkeleton',
-    async (req: Request, res: Response, next) => {
+    asyncHandler(async (req: Request, res: Response, next) => {
       console.log(`Received feed request`)
       const { query } = req
+      console.log({ query })
       const feed = query.feed as string
       const cursor = query.cursor ? (query.cursor as string) : undefined
       const limit = query.limit ? parseInt(query.limit as string) : 0
@@ -39,6 +41,7 @@ export default function (server: Express, ctx: AppContext) {
         console.log(`!algo (${feedUri.rkey})? ${!algo}`)
         console.log(`${Object.keys(ctx.cfg.feeds)}`)
 
+        console.log(`Unsupported algorithm error`)
         next(
           new InvalidRequestError(
             'Unsupported algorithm',
@@ -59,6 +62,6 @@ export default function (server: Express, ctx: AppContext) {
       }
 
       res.json(body)
-    },
+    }),
   )
 }
