@@ -16,18 +16,47 @@ export default async (job, cb) => {
   const { kysely: db } = createDb(appConfig.sqliteLocation)
 
   console.log(`Locking projects to query`)
-  const projects = await db
-    .updateTable('project')
-    .set({ isIndexing: 1 })
-    .where('isIndexing', '=', 0)
-    .where('indexedAt', 'is', null)
-    .returningAll()
+  const oneWeekAgo = new Date()
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+  const yesterday = new Date()
+  oneWeekAgo.setDate(yesterday.getDate() - 1)
+
+  const projectToUpdate = await db
+    .selectFrom('project')
+    .innerJoin('post', 'post.projectId', 'project.projectId')
+    .selectAll('project')
+    .where((eb) =>
+      eb.and([
+        eb('project.isIndexing', '=', 0),
+        eb('post.indexedAt', '>', yesterday.toISOString()),
+      ]),
+    )
+    .where((eb) =>
+      eb.or([
+        eb('project.indexedAt', 'is', null),
+        eb('project.indexedAt', 'is not', null)
+          .and('project.category', '=', UNKNOWN)
+          .and('project.indexedAt', '<', oneWeekAgo.toISOString()),
+      ]),
+    )
     .execute()
 
-  if (projects.length === 0) {
+  if (projectToUpdate.length === 0) {
     console.log(`Could not find any projects to query`)
     return cb()
   }
+
+  const lockedProjects = await db
+    .updateTable('project')
+    .set({ isIndexing: 1 })
+    .where(
+      'project.projectId',
+      'in',
+      projectToUpdate.map((p) => p.projectId),
+    )
+    .returningAll()
+    .execute()
 
   const shouldQuery = async (p: Selectable<Project>) => {
     const existingByUri = await db
@@ -35,6 +64,7 @@ export default async (job, cb) => {
       .selectAll('project')
       .where('project.uri', '=', p.uri)
       .where('project.indexedAt', 'is not', null)
+      .where('project.details', 'is not', null)
       .executeTakeFirst()
 
     if (existingByUri !== undefined) {
@@ -59,8 +89,9 @@ export default async (job, cb) => {
     return true
   }
 
-  const projectsToQuery = await asyncFilter(projects, shouldQuery)
-  const urlsToQuery = projectsToQuery.map((p) => p.uri)
+  const urlsToQuery = (await asyncFilter(lockedProjects, shouldQuery)).map(
+    (p) => p.uri,
+  )
 
   const client = new ApifyClient({
     token: process.env.APIFY_TOKEN,
@@ -112,11 +143,17 @@ export default async (job, cb) => {
       .execute()
   }
 
-  // If we didn't find a match, then clear the flag. We'll leave it as unindexed in case this was
-  // just an actor issue.
+  // If we didn't find a match, then clear the flag and set it was indexed anyway. We can be more
+  // clever with choosing which to re-index.
   await db
     .updateTable('project')
-    .set({ isIndexing: 0 })
+    .set({
+      isIndexing: 0,
+      indexedAt: new Date().toISOString(),
+      category: UNKNOWN,
+      title: UNKNOWN,
+      parentCategory: UNKNOWN,
+    })
     .where('project.isIndexing', '=', 1)
     .execute()
 
