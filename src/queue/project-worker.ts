@@ -41,6 +41,7 @@ export default async (job, cb) => {
           .and('project.indexedAt', '<', threeDaysAgo.toISOString()),
       ]),
     )
+    .orderBy('project.indexedAt asc')
     .distinct()
     .execute()
 

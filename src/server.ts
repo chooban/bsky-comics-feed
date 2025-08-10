@@ -4,15 +4,9 @@ import express from 'express'
 // import { DidResolver, MemoryCache } from '@atproto/identity'
 import feedGeneration from './methods/feed-generation.js'
 import describeGenerator from './methods/describe-generator.js'
-import {
-  clearOldJobs,
-  createDb,
-  Database,
-  migrateToLatest,
-} from './db/index.js'
+import { clearOldJobs, Database, migrateToLatest } from './db/index.js'
 import { AppContext, Config } from './config.js'
 import wellKnown from './well-known.js'
-import { createQueues } from './queue/index.js'
 import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
 import session from 'express-session'
@@ -44,7 +38,7 @@ export class FeedGenerator {
     this.cfg = cfg
   }
 
-  static create(cfg: Config) {
+  static create(cfg: Config, db: Database) {
     const app = express()
     const metricsMiddleware = setupMetrics()
     const __filename = fileURLToPath(import.meta.url)
@@ -52,9 +46,6 @@ export class FeedGenerator {
     app.set('views', __dirname + '/views')
     app.set('view engine', 'ejs')
     configureAtproto(app, cfg)
-
-    const db = createDb(cfg.sqliteLocation)
-    createQueues(cfg, db.kysely)
 
     // const didCache = new MemoryCache()
     // const didResolver = new DidResolver({
