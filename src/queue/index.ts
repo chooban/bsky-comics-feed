@@ -26,7 +26,7 @@ export const scheduleProjectQuery = () => {
   if (projectsQueue === undefined) {
     throw new Error('Projects queue not confifued')
   }
-  console.log(`Scheduling lookup for projects`)
+  // console.log(`Scheduling lookup for projects`)
   return projectsQueue.push({})
 }
 

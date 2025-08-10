@@ -14,7 +14,7 @@ export const getKickstarterLinks = (record: unknown): string[] => {
   })
   for (const segment of rt.segments()) {
     if (segment.isLink() && isKickstarterUrl(segment.link?.uri)) {
-      console.log(`Got one! ${segment.link.uri}`)
+      // console.log(`Got one! ${segment.link.uri}`)
       links.push(segment.link.uri)
     }
   }
@@ -22,7 +22,7 @@ export const getKickstarterLinks = (record: unknown): string[] => {
   const embed = record.embed
   if (embed?.$type == 'app.bsky.embed.external') {
     if (isKickstarterUrl(embed.external.uri)) {
-      console.log(`Got one in an embed! ${embed.external.uri}`)
+      // console.log(`Got one in an embed! ${embed.external.uri}`)
       links.push(embed.external.uri)
     }
   }

@@ -16,13 +16,14 @@ export default async (job, cb) => {
   const { kysely: db } = createDb(appConfig.sqliteLocation)
 
   console.log(`Locking projects to query`)
-  const oneWeekAgo = new Date()
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
   const yesterday = new Date()
-  oneWeekAgo.setDate(yesterday.getDate() - 1)
+  yesterday.setDate(yesterday.getDate() - 1)
 
-  const projectToUpdate = await db
+  const threeDaysAgo = new Date()
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+
+  const projectsToUpdate = await db
     .selectFrom('project')
     .innerJoin('post', 'post.projectId', 'project.projectId')
     .selectAll('project')
@@ -37,12 +38,13 @@ export default async (job, cb) => {
         eb('project.indexedAt', 'is', null),
         eb('project.indexedAt', 'is not', null)
           .and('project.category', '=', UNKNOWN)
-          .and('project.indexedAt', '<', oneWeekAgo.toISOString()),
+          .and('project.indexedAt', '<', threeDaysAgo.toISOString()),
       ]),
     )
+    .distinct()
     .execute()
 
-  if (projectToUpdate.length === 0) {
+  if (projectsToUpdate.length === 0) {
     console.log(`Could not find any projects to query`)
     return cb()
   }
@@ -53,7 +55,7 @@ export default async (job, cb) => {
     .where(
       'project.projectId',
       'in',
-      projectToUpdate.map((p) => p.projectId),
+      projectsToUpdate.map((p) => p.projectId),
     )
     .returningAll()
     .execute()
