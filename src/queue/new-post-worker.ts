@@ -33,18 +33,18 @@ export const newPostProcessor = async (job: { post: NewPost }, cb) => {
       console.log(`Ignoring ${l}`)
       continue
     }
-    const projectId = await findOrCreateProject(db, l)
-    if (!projectId) {
+    const project = await findOrCreateProject(db, l)
+    if (!project) {
       console.log('Could not determine a project to index')
       continue
     }
 
-    console.log(`Inserting new post for project ${projectId}`)
+    console.log(`Inserting new post for project ${project.title}`)
     await db
       .insertInto('post')
       .values({
         postId: createUUID(),
-        projectId: projectId,
+        projectId: project.projectId,
         uri: job.post.uri,
         cid: job.post.cid,
         author: job.post.author,
@@ -54,16 +54,8 @@ export const newPostProcessor = async (job: { post: NewPost }, cb) => {
       .onConflict((oc) => oc.doNothing())
       .execute()
 
-    projectIds.push(projectId)
+    projectIds.push(project.projectId)
   }
 
-  // const thread = await agent.getPostThread({ uri: job.data.post.uri })
-  // if (!AppBskyFeedDefs.isThreadViewPost(thread.data.thread)) {
-  //   throw new Error('Expected a thread view post')
-  // }
-  // const post = thread.data.thread.post
-  // if (!AppBskyFeedPost.isRecord(post.record)) {
-  //   throw new Error('Expected a post with a record')
-  // }
   cb(null, projectIds)
 }

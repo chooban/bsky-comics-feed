@@ -102,6 +102,7 @@ export const buildConfig = (): Config => {
   if (permittedUsers.length == 0) {
     throw new Error('Need a list of permitted users')
   }
+
   return {
     port: maybeInt(process.env.FEEDGEN_PORT) ?? 3000,
     listenhost: maybeStr(process.env.FEEDGEN_LISTENHOST) ?? 'localhost',

@@ -18,7 +18,7 @@ export const scheduleNewPostTask = (post: NewPost) => {
   if (postsQueue === undefined) {
     throw new Error('Posts queue is undefined')
   }
-  console.log(`Adding a new post job`)
+  // console.log(`Adding a new post job`)
   return postsQueue.push({ post: post })
 }
 

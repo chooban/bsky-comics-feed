@@ -1,5 +1,42 @@
 import { AppContext } from '../config'
 import { QueryParams } from '../methods/feed-generation.js'
+import { KyselyDatabase } from '../db/index.js'
+
+export const queryForAlgo = (
+  parentCategory: string | undefined,
+  categories: string[] | undefined,
+  dateLimit: Date,
+  postLimit: number,
+  db: KyselyDatabase,
+) => {
+  let builder = db
+    .selectFrom('post')
+    .innerJoin('project', 'project.projectId', 'post.projectId')
+    .selectAll('post')
+    .where('post.createdAt', '>', dateLimit.toISOString())
+    .orderBy('indexedAt', 'desc')
+    .orderBy('cid', 'desc')
+    .limit(postLimit)
+
+  if (parentCategory) {
+    if (!!categories && categories.length > 0) {
+      builder = builder.where((eb) =>
+        eb('project.parentCategory', '=', parentCategory).or(
+          eb('project.category', 'in', categories),
+        ),
+      )
+    } else {
+      builder = builder.where('project.parentCategory', '=', parentCategory)
+    }
+  } else {
+    if (!categories || categories.length < 1) {
+      throw new Error('Poorly configured feed')
+    }
+    builder = builder.where('project.category', 'in', categories)
+  }
+
+  return builder
+}
 
 export const buildFeed = (
   parentCategory: string | undefined,
@@ -12,31 +49,13 @@ export const buildFeed = (
     const dateLimit = new Date()
     dateLimit.setDate(dateLimit.getDate() - 3)
 
-    let builder = ctx.db
-      .selectFrom('post')
-      .innerJoin('project', 'project.projectId', 'post.projectId')
-      .selectAll('post')
-      .where('post.createdAt', '>', dateLimit.toISOString())
-      .orderBy('indexedAt', 'desc')
-      .orderBy('cid', 'desc')
-      .limit(params.limit)
-
-    if (parentCategory) {
-      if (!!categories && categories.length > 0) {
-        builder = builder.where((eb) =>
-          eb('project.parentCategory', '=', parentCategory).or(
-            eb('project.category', 'in', categories),
-          ),
-        )
-      } else {
-        builder = builder.where('project.parentCategory', '=', parentCategory)
-      }
-    } else {
-      if (!categories || categories.length < 1) {
-        throw new Error('Poorly configured feed')
-      }
-      builder = builder.where('project.category', 'in', categories)
-    }
+    let builder = queryForAlgo(
+      parentCategory,
+      categories,
+      dateLimit,
+      params.limit,
+      ctx.db,
+    )
 
     if (params.cursor) {
       const timeStr = new Date(parseInt(params.cursor, 10)).toISOString()

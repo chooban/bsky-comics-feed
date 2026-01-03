@@ -23,20 +23,20 @@
     "@apify/consts" "^2.33.0"
     ansi-colors "^4.1.1"
 
-"@atcute/atproto@^3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@atcute/atproto/-/atproto-3.1.1.tgz#17733d822b912afe753a66ffd3f6a95a290581fb"
-  integrity sha512-D+RLTIPF0xLu7BPZY8KSewAPemJFh+3n3zeQ3ROsLxbTtCHbrTDMAmAFexaVRAPGcPYrwXaBUlv7yZjScJolMg==
+"@atcute/atproto@^3.1.4":
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/@atcute/atproto/-/atproto-3.1.4.tgz#26448ad079e7dcaac274506d914b3d501608a312"
+  integrity sha512-v0/ue7mZYtjYw4vWbtda51bLwW88mqsUQB8F/UZNO18ANAQWmKq1HDceVqjvruaLe2QPqE43XM3WkEyZ2FhOrA==
   dependencies:
-    "@atcute/lexicons" "^1.1.0"
+    "@atcute/lexicons" "^1.1.1"
 
-"@atcute/bluesky@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@atcute/bluesky/-/bluesky-3.2.0.tgz#f7a656d2785b045335434b62903ac9761fc5a203"
-  integrity sha512-OqPLqUNjXcgQ25MaPdU7H0QcWmZrx6QQk7d5B22A5U4xy+hZJ954kQ5mSAn24Bt0DEm4j/isq1WZovr3vaPTUA==
+"@atcute/bluesky@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@atcute/bluesky/-/bluesky-3.2.3.tgz#bc04a360159ec8b01dbcb841dde1e5ac390073fd"
+  integrity sha512-IdPQQ54F1BLhW5z49k81ZUC/GQl/tVygZ+CzLHYvQySHA6GJRcvPzwEf8aV21u0SZOJF+yF4CWEGNgtryyxPmg==
   dependencies:
-    "@atcute/atproto" "^3.1.1"
-    "@atcute/lexicons" "^1.1.0"
+    "@atcute/atproto" "^3.1.4"
+    "@atcute/lexicons" "^1.1.1"
 
 "@atcute/jetstream@^1.0.2":
   version "1.0.2"
@@ -51,10 +51,17 @@
     type-fest "^4.41.0"
     yocto-queue "^1.2.1"
 
-"@atcute/lexicons@^1.0.2", "@atcute/lexicons@^1.1.0":
+"@atcute/lexicons@^1.0.2":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@atcute/lexicons/-/lexicons-1.1.0.tgz#7f51a99f2af4c3536f033d7d5b52eff2eb0d4984"
   integrity sha512-LFqwnria78xLYb62Ri/+WwQpUTgZp2DuyolNGIIOV1dpiKhFFFh//nscHMA6IExFLQRqWDs3tTjy7zv0h3sf1Q==
+  dependencies:
+    esm-env "^1.2.2"
+
+"@atcute/lexicons@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@atcute/lexicons/-/lexicons-1.1.1.tgz#0458e4806cf011c251542ce1e739430b29ffb188"
+  integrity sha512-k6qy5p3j9fJJ6ekaMPfEfp3ni4TW/XNuH9ZmsuwC0fi0tOjp+Fa8ZQakHwnqOzFt/cVBfGcmYE/lKNAbeTjgUg==
   dependencies:
     esm-env "^1.2.2"
 

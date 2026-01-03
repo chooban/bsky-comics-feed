@@ -20,7 +20,8 @@ min_machines_running = 1
 processes = ['app']
 
 [[vm]]
-size = 'shared-cpu-2x'
+size = 'shared-cpu-1x'
+memory = '256mb'
 processes = ['app']
 
 [env]

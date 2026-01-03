@@ -117,3 +117,50 @@ migrations['008'] = {
     await db.schema.alterTable('project').dropColumn('details').execute()
   },
 }
+
+migrations['009'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .createTable('notification')
+      .addColumn('notificationId', 'varchar', (col) => col.primaryKey())
+      .addColumn('postId', 'integer', (col) => {
+        return col.references('post.postId').notNull()
+      })
+      .addColumn('createdAt', 'varchar')
+      .addColumn('author', 'varchar')
+      .addColumn('uri', 'varchar', (col) => col.notNull())
+      .addColumn('cid', 'varchar', (col) => col.notNull())
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.dropTable('notifications').execute()
+  },
+}
+
+migrations['010'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema.alterTable('notification').dropColumn('author').execute()
+
+    await db.schema
+      .alterTable('notification')
+      .addColumn('recipient', 'varchar', (col) => col.notNull())
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema
+      .alterTable('notifications')
+      .dropColumn('recipient')
+      .execute()
+    await db.schema
+      .alterTable('notification')
+      .addColumn('author', 'varchar', (c) => c.notNull())
+      .execute()
+  },
+}
+
+migrations['011'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema.dropTable('notification').execute()
+  },
+  async down() {},
+}
