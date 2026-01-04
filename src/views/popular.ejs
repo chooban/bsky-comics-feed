@@ -41,6 +41,14 @@
       color: #2c3e50;
       margin: 0;
     }
+    .category-title a {
+      color: #2c3e50;
+      text-decoration: none;
+    }
+    .category-title a:hover {
+      color: #3498db;
+      text-decoration: underline;
+    }
     .category-count {
       color: #95a5a6;
       font-size: 16px;
@@ -123,7 +131,7 @@
       <% categories.forEach(function(category) { %>
         <div class="category-section">
           <div class="category-header">
-            <h2 class="category-title"><%= category.title %></h2>
+            <h2 class="category-title"><a href="https://bsky.app/profile/<%= hostname %>/feed/<%= category.feedKey %>" target="_blank"><%= category.title %></a></h2>
             <span class="category-count"><%= category.postCount %> posts</span>
             <a href="/feed/<%= category.feedKey %>" class="view-all-link">View All Projects →</a>
           </div>

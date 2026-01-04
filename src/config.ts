@@ -25,6 +25,7 @@ export type Config = {
   permittedUsers: string[]
   feeds: Record<string, Feed>
   workerParallelism: number
+  blueskyHandle: string
 }
 
 export type Feed = {
@@ -119,5 +120,6 @@ export const buildConfig = (): Config => {
     permittedUsers,
     feeds: feedsConfig,
     workerParallelism: maybeInt(process.env.WORKERS) ?? 1,
+    blueskyHandle: maybeStr(process.env.BLUESKY_HANDLE) ?? 'example.com',
   }
 }

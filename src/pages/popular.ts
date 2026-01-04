@@ -26,7 +26,14 @@ const getPopularContent = async (ctx: AppContext) => {
     let builder = ctx.db
       .selectFrom('post')
       .innerJoin('project', 'project.projectId', 'post.projectId')
-      .select(['project.projectId', 'project.title', 'project.uri', 'project.details', 'project.category', 'project.parentCategory'])
+      .select([
+        'project.projectId',
+        'project.title',
+        'project.uri',
+        'project.details',
+        'project.category',
+        'project.parentCategory',
+      ])
       .select((eb) => [eb.fn.count('post.postId').as('postCount')])
       .where('post.createdAt', '>', oneWeekAgoStr)
 
@@ -55,7 +62,7 @@ const getPopularContent = async (ctx: AppContext) => {
       .groupBy('project.projectId')
       .orderBy('postCount', 'desc')
       .execute()
-      
+
     const totalPosts = await ctx.db
       .selectFrom('post')
       .innerJoin('project', 'project.projectId', 'post.projectId')
@@ -73,28 +80,31 @@ const getPopularContent = async (ctx: AppContext) => {
         return eb('project.category', 'in', feedConfig.categories || [])
       })
       .executeTakeFirst()
-      
+
     feedsWithProjects.push({
       feedKey,
       title: feedConfig.title,
       postCount: Number(totalPosts?.postCount || 0),
-      topProjects: topProjects.map((p) => ({
-        projectId: p.projectId,
-        title: p.title,
-        uri: p.uri,
-        details: p.details,
-        postCount: Number(p.postCount),
-        category: p.category,
-        parentCategory: p.parentCategory,
-      })),
+      topProjects: topProjects
+        .map((p) => ({
+          projectId: p.projectId,
+          title: p.title,
+          uri: p.uri,
+          details: p.details,
+          postCount: Number(p.postCount),
+          category: p.category,
+          parentCategory: p.parentCategory,
+        }))
+        .slice(0, 5),
     })
   }
 
-  feedsWithProjects.sort((a, b) => b.postCount - a.postCount)
+  // feedsWithProjects.sort((a, b) => b.postCount - a.postCount)
 
   return {
     categories: feedsWithProjects,
     fromDate: oneWeekAgo.toDateString(),
+    hostname: ctx.cfg.blueskyHandle,
   }
 }
 

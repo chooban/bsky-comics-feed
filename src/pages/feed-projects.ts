@@ -68,7 +68,8 @@ const getFeedProjects = async (ctx: AppContext, feedKey: string) => {
     description: feedConfig.description,
     projects: formattedProjects,
     fromDate: oneWeekAgo.toDateString(),
-    error: null
+    hostname: ctx.cfg.blueskyHandle,
+    error: null,
   }
 }
 
@@ -85,6 +86,7 @@ export default (ctx: AppContext) => {
         return res.status(404).render('feed-projects', {
           error: 'Feed not found',
           feedKey,
+          hostname: ctx.cfg.blueskyHandle,
         })
       }
 

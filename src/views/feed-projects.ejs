@@ -16,6 +16,14 @@
       color: #2c3e50;
       margin-bottom: 10px;
     }
+    h1 a {
+      color: #2c3e50;
+      text-decoration: none;
+    }
+    h1 a:hover {
+      color: #3498db;
+      text-decoration: underline;
+    }
     .subtitle {
       color: #7f8c8d;
       margin-bottom: 40px;
@@ -91,7 +99,7 @@
         <a href="/">← Back to popular feeds</a>
       </div>
     <% } else { %>
-      <h1><%= title %></h1>
+      <h1><a href="https://bsky.app/profile/<%= hostname %>/feed/<%= feedKey %>" target="_blank"><%= title %></a></h1>
       <p class="subtitle">
         <%= description %><br>
         Projects mentioned in the last 7 days (since <%= fromDate %>)
