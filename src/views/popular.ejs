@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Popular Kickstarter Projects - Last 7 Days</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    .subtitle {
+      color: #7f8c8d;
+      margin-bottom: 40px;
+      font-size: 18px;
+    }
+    .category-section {
+      background: white;
+      padding: 25px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #3498db;
+    }
+    .category-title {
+      font-size: 24px;
+      color: #2c3e50;
+      margin: 0;
+    }
+    .category-count {
+      color: #95a5a6;
+      font-size: 16px;
+    }
+    .view-all-link {
+      color: #3498db;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .view-all-link:hover {
+      text-decoration: underline;
+    }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .project-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 6px;
+      border-left: 4px solid #3498db;
+      transition: transform 0.2s;
+    }
+    .project-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .project-title {
+      font-size: 18px;
+      margin: 0 0 10px 0;
+      color: #2c3e50;
+      line-height: 1.4;
+    }
+    .project-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+    .post-count {
+      background: #3498db;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .view-link {
+      color: #7f8c8d;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .view-link:hover {
+      color: #3498db;
+      text-decoration: underline;
+    }
+    .error {
+      color: #e74c3c;
+      background: #fadbd8;
+      padding: 20px;
+      border-radius: 6px;
+    }
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Popular Kickstarter Projects</h1>
+    <p class="subtitle">
+      Top categories and projects from the last 7 days (since <%= fromDate %>)
+    </p>
+    
+    <% if (categories && categories.length > 0) { %>
+      <% categories.forEach(function(category) { %>
+        <div class="category-section">
+          <div class="category-header">
+            <h2 class="category-title"><%= category.title %></h2>
+            <span class="category-count"><%= category.postCount %> posts</span>
+            <a href="/feed/<%= category.feedKey %>" class="view-all-link">View All Projects →</a>
+          </div>
+          <div class="projects-grid">
+            <% category.topProjects.forEach(function(project) { %>
+              <div class="project-card">
+                <h3 class="project-title"><%= project.title %></h3>
+                <div class="project-blurb"><%= project.details?.['blurb'] %></div>
+                <div class="project-stats">
+                  <span class="post-count"><%= project.postCount %> posts</span>
+                  <a href="<%= project.uri %>" target="_blank" class="view-link">View Project ↗</a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="loading">
+        No data available for the selected time period.
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

@@ -21,6 +21,7 @@ services:
     volumes:
       - ./src:/usr/src/app/src
       - ./db/:/db/
+      - ./src/views:/usr/src/app/dist/views
     working_dir: /usr/src/app
     command: sh -c "yarn install && yarn run dev"
     ports:

@@ -23,6 +23,9 @@ export default async (job, cb) => {
   const threeDaysAgo = new Date()
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
 
+  const aWeekAgo = new Date()
+  aWeekAgo.setDate(aWeekAgo.getDate() - 7)
+
   const projectsToUpdate = await db
     .selectFrom('project')
     .innerJoin('post', 'post.projectId', 'project.projectId')
@@ -39,6 +42,9 @@ export default async (job, cb) => {
         eb('project.indexedAt', 'is not', null)
           .and('project.category', '=', UNKNOWN)
           .and('project.indexedAt', '<', threeDaysAgo.toISOString()),
+        eb('project.indexedAt', 'is not', null)
+          .and('project.category', '!=', UNKNOWN)
+          .and('project.indexedAt', '<', aWeekAgo.toISOString()),
       ]),
     )
     .orderBy('project.indexedAt asc')

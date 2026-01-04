@@ -7,13 +7,15 @@ import describeGenerator from './methods/describe-generator.js'
 import { clearOldJobs, Database, migrateToLatest } from './db/index.js'
 import { AppContext, Config } from './config.js'
 import wellKnown from './well-known.js'
-import { ensureLoggedIn } from 'connect-ensure-login'
+// import { ensureLoggedIn } from 'connect-ensure-login'
 import passport from 'passport'
 import session from 'express-session'
 import configureAtproto from './passport-atproto.js'
 import { setupMetrics } from './metrics.js'
 import expressListEndpoints from 'express-list-endpoints'
-import renderFeed from './pages/feed-list.js'
+// import renderFeed from './pages/feed-list.js'
+import renderPopular from './pages/popular.js'
+import renderFeedProjects from './pages/feed-projects.js'
 import SqliteStore from 'better-sqlite3-session-store'
 import { Jetstream } from './jetstream/jetstream.js'
 import { fileURLToPath } from 'url'
@@ -87,7 +89,9 @@ export class FeedGenerator {
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
     })
-    app.get('/', ensureLoggedIn({ redirectTo: '/login' }), renderFeed())
+    app.get('/', renderPopular(ctx))
+    app.get('/feed/:feedKey', renderFeedProjects(ctx))
+    // app.get('/', ensureLoggedIn({ redirectTo: '/login' }), renderFeed())
     console.log(expressListEndpoints(app))
 
     return new FeedGenerator(
