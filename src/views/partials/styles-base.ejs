@@ -1,0 +1,210 @@
+<style>
+  /* CSS Variables - Light Mode (default) */
+  :root {
+    --color-primary: #3498db;
+    --color-dark: #2c3e50;
+    --color-gray-light: #ecf0f1;
+    --color-gray-medium: #95a5a6;
+    --color-gray-dark: #7f8c8d;
+    --color-error: #e74c3c;
+    --color-error-bg: #fadbd8;
+    --color-bg: #f5f5f5;
+    --color-text: #555;
+    --color-border: #ecf0f1;
+    
+    --border-radius-sm: 6px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 16px;
+    
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    --card-bg: white;
+    --card-shadow: var(--shadow-sm);
+  }
+
+  /* Dark Mode Variables */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #1a1a1a;
+      --color-text: #e0e0e0;
+      --color-dark: #f0f0f0;
+      --color-gray-light: #404040;
+      --color-gray-medium: #b0b0b0;
+      --color-gray-dark: #a0a0a0;
+      --color-card-bg: #2d2d2d;
+      --color-border: #404040;
+      --card-bg: #2d2d2d;
+    }
+  }
+
+  /* Base Styles */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-dark);
+  }
+
+  h1 {
+    margin: 0 0 15px 0;
+  }
+
+  h1 a {
+    color: var(--color-dark);
+    text-decoration: none;
+  }
+
+  h1 a:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  /* Links */
+  .view-link {
+    color: var(--color-gray-dark);
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .view-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Cards & Containers */
+  .card, .post-item {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--card-shadow);
+  }
+
+  .header {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 30px;
+    box-shadow: var(--card-shadow);
+  }
+
+  /* Error States */
+  .error {
+    color: var(--color-error);
+    background: var(--color-error-bg);
+    padding: 20px;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 20px;
+  }
+
+  /* Buttons & Badges */
+  .post-count {
+    background: var(--color-primary);
+    color: white;
+    padding: 4px 12px;
+    border-radius: var(--border-radius-lg);
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .post-count:hover {
+    background: #2980b9;
+  }
+
+  /* Meta Text */
+  .project-meta {
+    color: var(--color-gray-dark);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .posts-count {
+    color: var(--color-gray-medium);
+    font-size: 14px;
+  }
+
+  .post-date {
+    color: var(--color-gray-medium);
+    font-size: 13px;
+  }
+
+  /* Subtitle/Descriptive Text */
+  .subtitle {
+    color: var(--color-gray-dark);
+    margin-bottom: 40px;
+    font-size: 16px;
+  }
+
+  .project-description {
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  /* Project Cards */
+  .project-title {
+    font-size: 18px;
+    margin: 0 0 10px 0;
+    color: var(--color-dark);
+    line-height: 1.4;
+  }
+
+  .project-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+  }
+
+  /* Empty States */
+  .no-posts, .no-data {
+    background: var(--card-bg);
+    padding: 40px;
+    text-align: center;
+    border-radius: var(--border-radius-sm);
+    color: var(--color-gray-dark);
+  }
+
+  /* Bluesky Post Embed Fallback */
+  .bluesky-post-fallback {
+    margin: 16px 0;
+    border-left: 3px solid var(--color-border);
+    padding: 4px 8px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .bluesky-post-fallback p {
+    margin: 0 0 8px 0;
+  }
+</style>

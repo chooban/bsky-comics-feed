@@ -68,8 +68,6 @@ const getProjectPosts = async (ctx: AppContext, projectId: UUID) => {
       profile: p.profile as ProfileData,
     }))
 
-  console.log({ p: JSON.stringify(formattedTopPosters) })
-
   return {
     projectId,
     title: project.title,

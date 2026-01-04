@@ -22,6 +22,7 @@ services:
       - ./src:/usr/src/app/src
       - ./db/:/db/
       - ./src/views:/usr/src/app/dist/views
+      - ./src/views/partials:/usr/src/app/dist/views/partials
     working_dir: /usr/src/app
     command: sh -c "yarn install && yarn run dev"
     ports:

@@ -2,98 +2,31 @@
 <html>
 <head>
   <title><%= title %> - Last 7 Days</title>
+  <!-- Shared base styles -->
+  <%- include('./partials/styles-base') %>
+  
+    <!-- Page-specific styles -->
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 40px;
-      background-color: #f5f5f5;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+
     h1 {
-      color: #2c3e50;
       margin-bottom: 10px;
     }
-    h1 a {
-      color: #2c3e50;
-      text-decoration: none;
-    }
-    h1 a:hover {
-      color: #3498db;
-      text-decoration: underline;
-    }
-    .subtitle {
-      color: #7f8c8d;
-      margin-bottom: 40px;
-      font-size: 16px;
-    }
+
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 20px;
     }
+
     .project-card {
-      background: white;
+      background: var(--card-bg);
       padding: 20px;
-      border-radius: 6px;
-      border-left: 4px solid #3498db;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .project-title {
-      font-size: 18px;
-      margin: 0 0 10px 0;
-      color: #2c3e50;
-      line-height: 1.4;
-    }
-    .project-meta {
-      color: #7f8c8d;
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-    .project-stats {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
-    }
-     .post-count {
-       background: #3498db;
-       color: white;
-       padding: 4px 12px;
-       border-radius: 20px;
-       font-size: 14px;
-       font-weight: bold;
-       text-decoration: none;
-       cursor: pointer;
-       transition: background-color 0.2s;
-       display: inline-block;
-     }
-     .post-count:hover {
-       background: #2980b9;
-     }
-    .view-link {
-      color: #7f8c8d;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .view-link:hover {
-      color: #3498db;
-      text-decoration: underline;
-    }
-    .error {
-      color: #e74c3c;
-      background: #fadbd8;
-      padding: 20px;
-      border-radius: 6px;
-    }
-    .no-data {
-      color: #7f8c8d;
-      padding: 40px;
-      text-align: center;
-      background: white;
-      border-radius: 6px;
+      border-radius: var(--border-radius-sm);
+      border-left: 4px solid var(--color-primary);
+      box-shadow: var(--card-shadow);
     }
   </style>
 </head>
