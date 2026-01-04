@@ -130,7 +130,9 @@
       </div>
      <% } else { %>
       <div class="header">
-         <h1><a href="https://bsky.app/profile/<%= hostname %>/post/<%= projectUri %>" target="_blank"><%= title %></a></h1>
+        <h1><a href="<%= projectUri %>" target="_blank">
+            <%= title %>
+          </a></h1>
          <div class="project-meta">
           <%= category %>
           <% if (parentCategory) { %>
