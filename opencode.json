@@ -1,0 +1,9 @@
+{
+  "permission": {
+    "bash": "allow"
+  },
+  "experimental": {
+    "batch_tool": false
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

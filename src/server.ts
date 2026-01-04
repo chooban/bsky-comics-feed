@@ -16,6 +16,7 @@ import expressListEndpoints from 'express-list-endpoints'
 // import renderFeed from './pages/feed-list.js'
 import renderPopular from './pages/popular.js'
 import renderFeedProjects from './pages/feed-projects.js'
+import renderProjectPosts from './pages/project-posts.js'
 import SqliteStore from 'better-sqlite3-session-store'
 import { Jetstream } from './jetstream/jetstream.js'
 import { fileURLToPath } from 'url'
@@ -91,6 +92,7 @@ export class FeedGenerator {
     })
     app.get('/', renderPopular(ctx))
     app.get('/feed/:feedKey', renderFeedProjects(ctx))
+    app.get('/project/:projectId', renderProjectPosts(ctx))
     // app.get('/', ensureLoggedIn({ redirectTo: '/login' }), renderFeed())
     console.log(expressListEndpoints(app))
 

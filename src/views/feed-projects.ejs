@@ -58,14 +58,21 @@
       align-items: center;
       margin-top: 15px;
     }
-    .post-count {
-      background: #3498db;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: bold;
-    }
+     .post-count {
+       background: #3498db;
+       color: white;
+       padding: 4px 12px;
+       border-radius: 20px;
+       font-size: 14px;
+       font-weight: bold;
+       text-decoration: none;
+       cursor: pointer;
+       transition: background-color 0.2s;
+       display: inline-block;
+     }
+     .post-count:hover {
+       background: #2980b9;
+     }
     .view-link {
       color: #7f8c8d;
       text-decoration: none;
@@ -119,10 +126,10 @@
               <% if (project.details && project.details['blurb']) { %>
                 <div class="project-blurb"><%= project.details['blurb'] %></div>
               <% } %>
-              <div class="project-stats">
-                <span class="post-count"><%= project.postCount %> posts</span>
-                <a href="<%= project.uri %>" target="_blank" class="view-link">View Project ↗</a>
-              </div>
+               <div class="project-stats">
+                 <a href="/project/<%= project.projectId %>" class="post-count"><%= project.postCount %> posts</a>
+                 <a href="<%= project.uri %>" target="_blank" class="view-link">View Project ↗</a>
+               </div>
             </div>
           <% }) %>
         </div>
