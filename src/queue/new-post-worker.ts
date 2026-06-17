@@ -1,7 +1,7 @@
 import { buildConfig } from '../config.js'
 import { createDb, findOrCreateProject } from '../db/index.js'
 import { createUUID, UUID } from '../types/uuid.js'
-import { isKickstarterUrl } from '../util/kickstarter.js'
+import { isCrowdfundingUrl } from '../util/crowdfunding.js'
 
 export type NewPost = {
   uri: string
@@ -29,7 +29,7 @@ export const newPostProcessor = async (job: { post: NewPost }, cb) => {
   // create a project, and link the posts to it
   const projectIds: UUID[] = []
   for (const l of job.post.links) {
-    if (!isKickstarterUrl(l)) {
+    if (!isCrowdfundingUrl(l)) {
       console.log(`Ignoring ${l}`)
       continue
     }

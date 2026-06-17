@@ -4,7 +4,7 @@ import { KyselyDatabase } from '../db/index.js'
 import { is } from '@atcute/lexicons'
 import { AppBskyFeedPost } from '@atcute/bluesky'
 import { NewPost } from '../queue/new-post-worker.js'
-import { getKickstarterLinks } from '../util/records.js'
+import { getCrowdfundingLinks } from '../util/records.js'
 import { scheduleNewPostTask } from '../queue/index.js'
 
 export class Jetstream {
@@ -63,7 +63,7 @@ export class Jetstream {
             if (!is(AppBskyFeedPost.mainSchema, record)) {
               continue
             }
-            const links = getKickstarterLinks(record)
+            const links = getCrowdfundingLinks(record)
             if (links.length == 0) {
               continue
             }

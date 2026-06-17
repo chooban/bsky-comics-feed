@@ -102,18 +102,23 @@ export default async (job, cb) => {
     (p) => p.uri,
   )
 
+  const limitedUrlsToQuery = urlsToQuery.map((p) => ({ url: p })).slice(0, 5)
+
+  if (limitedUrlsToQuery.length === 0) {
+    console.log('No project URLs to query, skipping Apify call')
+    return cb()
+  }
+
   const client = new ApifyClient({
     token: process.env.APIFY_TOKEN,
   })
 
-  // Starts an actor and waits for it to finish.
-  const limitedUrlsToQuery = urlsToQuery.map((p) => ({ url: p })).slice(0, 5)
   console.log(
     `Querying Apify for ${limitedUrlsToQuery.map((u) => u.url).join(',')}`,
   )
 
   const { defaultDatasetId } = await client
-    .actor('chooban/apify-kickstarter-project')
+    .actor('chooban/crowdfunding-project-scraper')
     .call(
       { projectUrls: limitedUrlsToQuery },
       {
