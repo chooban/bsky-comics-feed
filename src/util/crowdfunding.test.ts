@@ -40,6 +40,17 @@ describe('Crowdfunding utility functions', () => {
       ).toBe(true)
     })
 
+    it('should return true for valid Gamefound URLs', () => {
+      expect(
+        isCrowdfundingUrl(
+          'https://gamefound.com/en/projects/awaken-realms/concordia-special-edition',
+        ),
+      ).toBe(true)
+      expect(
+        isCrowdfundingUrl('https://www.gamefound.com/projects/test'),
+      ).toBe(true)
+    })
+
     it('should return false for invalid URLs', () => {
       expect(isCrowdfundingUrl('https://www.google.com')).toBe(false)
       expect(isCrowdfundingUrl('https://www.kickstarter.com')).toBe(true)
@@ -47,6 +58,7 @@ describe('Crowdfunding utility functions', () => {
       expect(isCrowdfundingUrl('https://www.fundmycomic.com')).toBe(true)
       expect(isCrowdfundingUrl('https://zoop.gg')).toBe(true)
       expect(isCrowdfundingUrl('https://www.indiegogo.com')).toBe(true)
+      expect(isCrowdfundingUrl('https://gamefound.com')).toBe(true)
     })
   })
 
@@ -95,6 +107,14 @@ describe('Crowdfunding utility functions', () => {
           'https://www.indiegogo.com/en/projects/keithmorange/skylights',
         ),
       ).toBe('https://www.indiegogo.com/en/projects/keithmorange/skylights')
+    })
+
+    it('should return the URL as-is for Gamefound URLs', async () => {
+      expect(
+        await canonicalizeCrowdfundingUrl(
+          'https://gamefound.com/en/projects/awaken-realms/concordia-special-edition',
+        ),
+      ).toBe('https://gamefound.com/en/projects/awaken-realms/concordia-special-edition')
     })
   })
 })

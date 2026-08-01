@@ -21,7 +21,7 @@ export const canonicalizeCrowdfundingUrl = async (
     return canonicalizeCrowdfundingUrl(redirectUrl)
   }
 
-  if (u.hostname.endsWith('fundmycomic.com') || u.hostname.endsWith('zoop.gg') || u.hostname.endsWith('indiegogo.com')) {
+  if (u.hostname.endsWith('fundmycomic.com') || u.hostname.endsWith('zoop.gg') || u.hostname.endsWith('indiegogo.com') || u.hostname.endsWith('gamefound.com')) {
     return u.origin + u.pathname.replace(/\/$/, '')
   }
 
@@ -49,7 +49,8 @@ export const isCrowdfundingUrl = (url: string | undefined): url is string => {
       url.includes('kck.st') ||
       url.includes('fundmycomic.com') ||
       url.includes('zoop.gg') ||
-      url.includes('indiegogo.com')) &&
+      url.includes('indiegogo.com') ||
+      url.includes('gamefound.com')) &&
     !(url.includes('...') || url.includes('%E2%80%A6') || url.includes('…'))
   )
 }

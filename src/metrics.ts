@@ -23,6 +23,10 @@ export const setupMetrics = () => {
     customLabels: {
       project_name: 'bsky_feeds',
     },
+    normalizePath: [
+      ['^/(xrpc|feed|project|metrics|login).*', '/$1'],
+      ['^/.*', '/other'],
+    ],
     promClient: {
       collectDefaultMetrics: {},
     },
