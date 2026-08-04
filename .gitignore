@@ -132,7 +132,7 @@ dist
 # intellij
 .idea/
 *.iml
-db
+./db
 .env.example
 .env.prod
 *.db
