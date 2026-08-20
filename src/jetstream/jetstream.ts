@@ -18,9 +18,9 @@ export class Jetstream {
 
   async updateCursor(cursor: number) {
     await this.db
-      .updateTable('sub_state')
-      .set({ cursor })
-      .where('service', '=', this.service)
+      .insertInto('sub_state')
+      .values({ service: this.service, cursor })
+      .onConflict((oc) => oc.column('service').doUpdateSet({ cursor }))
       .execute()
   }
 
@@ -33,24 +33,23 @@ export class Jetstream {
     return res ? { cursor: res.cursor } : {}
   }
 
-  async handleEvent() {}
-
   async start() {
     const { cursor } = await this.getCursor()
 
     const jetstream = new JetstreamSubscription({
       url: 'wss://jetstream2.us-east.bsky.network',
       wantedCollections: ['app.bsky.feed.post'],
-      cursor,
+      cursor: cursor ?? (Date.now() - 6 * 60 * 60 * 1000) * 1_000,
     })
+    let eventCount = 0
     try {
       for await (const evt of jetstream) {
-        // this.handleEvent(evt).catch((err) => {
-        //   console.error('repo subscription could not handle message', err)
-        // })
-        // if (evt.kind === 'commit' && evt.seq % 20 === 0) {
-        //   await this.updateCursor(evt.seq)
-        // }
+        eventCount += 1
+
+        if (eventCount % 20 === 0) {
+          await this.updateCursor(evt.time_us)
+        }
+
         if (evt.kind === 'commit') {
           const commit = evt.commit
 

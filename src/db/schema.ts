@@ -30,5 +30,6 @@ export type Project = {
   details: object | null
   indexedAt: string | null
   isIndexing: number
+  isManual: number
   addedAt: string
 }

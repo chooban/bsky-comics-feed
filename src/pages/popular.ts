@@ -112,7 +112,10 @@ export default (ctx: AppContext) => {
   return async (req, res) => {
     try {
       const data = await getPopularContent(ctx)
-      res.render('popular', data)
+      res.render('popular', {
+        ...data,
+        isAuthenticated: req.isAuthenticated?.() ?? false,
+      })
     } catch (error) {
       console.error('Error fetching popular content:', error)
       res.status(500).send('Internal server error')

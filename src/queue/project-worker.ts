@@ -20,8 +20,8 @@ export default async (job, cb) => {
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
 
-  const threeDaysAgo = new Date()
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+  const sixHoursAgo = new Date()
+  sixHoursAgo.setTime(sixHoursAgo.getTime() - 6 * 60 * 60 * 1000)
 
   const aWeekAgo = new Date()
   aWeekAgo.setDate(aWeekAgo.getDate() - 7)
@@ -33,6 +33,7 @@ export default async (job, cb) => {
     .where((eb) =>
       eb.and([
         eb('project.isIndexing', '=', 0),
+        eb('project.isManual', '=', 0),
         eb('post.indexedAt', '>', yesterday.toISOString()),
       ]),
     )
@@ -41,7 +42,7 @@ export default async (job, cb) => {
         eb('project.indexedAt', 'is', null),
         eb('project.indexedAt', 'is not', null)
           .and('project.category', '=', UNKNOWN)
-          .and('project.indexedAt', '<', threeDaysAgo.toISOString()),
+          .and('project.indexedAt', '<', sixHoursAgo.toISOString()),
         eb('project.indexedAt', 'is not', null)
           .and('project.category', '!=', UNKNOWN)
           .and('project.indexedAt', '<', aWeekAgo.toISOString()),
@@ -72,8 +73,10 @@ export default async (job, cb) => {
       .selectFrom('project')
       .selectAll('project')
       .where('project.uri', '=', p.uri)
+      .where('project.projectId', '!=', p.projectId)
       .where('project.indexedAt', 'is not', null)
       .where('project.details', 'is not', null)
+      .where('project.title', '!=', UNKNOWN)
       .executeTakeFirst()
 
     if (existingByUri !== undefined) {

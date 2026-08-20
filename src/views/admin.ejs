@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Projects</title>
+  <%- include('./partials/styles-base') %>
+  <style>
+    .admin-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-form input[type="text"] {
+      padding: 8px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      min-width: 300px;
+      font-size: 14px;
+    }
+
+    .search-form button {
+      padding: 8px 16px;
+      background: var(--color-primary);
+      color: white;
+      border: 0;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+    }
+
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .project-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      background: var(--card-bg);
+      padding: 16px 20px;
+      border-radius: var(--border-radius-sm);
+      box-shadow: var(--card-shadow);
+    }
+
+    .project-row .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .project-row .title {
+      font-weight: 600;
+      color: var(--color-dark);
+      margin-bottom: 4px;
+    }
+
+    .project-row .uri {
+      color: var(--color-gray-dark);
+      font-size: 13px;
+      overflow-wrap: break-word;
+    }
+
+    .project-row .stats {
+      color: var(--color-gray-medium);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .manual-badge {
+      display: inline-block;
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="admin-bar">
+      <h1>Admin - Projects</h1>
+      <a href="/" class="view-link">← Back to site</a>
+    </div>
+
+    <form method="get" action="/admin" class="search-form" style="margin-bottom: 20px;">
+      <input type="text" name="q" placeholder="Search by URL or title" value="<%= q || '' %>" />
+      <button type="submit">Search</button>
+      <% if (q) { %>
+        <a href="/admin" class="view-link" style="align-self: center;">Clear</a>
+      <% } %>
+    </form>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <% if (projects.length === 0) { %>
+      <div class="no-data">
+        <h3><%= q ? 'No matches' : 'No projects need attention' %></h3>
+        <p><%= q ? 'Try a different search.' : 'There are no projects with an unknown title right now.' %></p>
+      </div>
+    <% } else { %>
+      <div class="projects-list">
+        <% projects.forEach(function(project) { %>
+          <div class="project-row">
+            <div class="info">
+              <div class="title">
+                <%= project.title %>
+                <% if (project.isManual === 1) { %>
+                  <span class="manual-badge">manual</span>
+                <% } %>
+              </div>
+              <div class="uri"><a href="<%= project.uri %>" target="_blank" class="view-link"><%= project.uri %></a></div>
+            </div>
+            <div class="stats">
+              <%= project.postCount %> posts ·
+              last post <%= new Date(project.lastPostAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+            </div>
+            <a href="/admin/project/<%= project.projectId %>" class="post-count">Edit</a>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

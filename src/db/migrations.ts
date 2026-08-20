@@ -164,3 +164,35 @@ migrations['011'] = {
   },
   async down() {},
 }
+
+migrations['012'] = {
+  async up(db: Kysely<unknown>) {
+    await sql`
+      delete from post
+      where postId not in (
+        select min(postId) from post group by projectId, uri
+      )
+    `.execute(db)
+    await db.schema
+      .createIndex('post_project_uri_unique')
+      .unique()
+      .on('post')
+      .columns(['projectId', 'uri'])
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.dropIndex('post_project_uri_unique').execute()
+  },
+}
+
+migrations['013'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .alterTable('project')
+      .addColumn('isManual', 'integer', (col) => col.defaultTo(0).notNull())
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.alterTable('project').dropColumn('isManual').execute()
+  },
+}

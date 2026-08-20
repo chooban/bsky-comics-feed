@@ -19,6 +19,7 @@ import renderFeedProjects from './pages/feed-projects.js'
 import renderProjectPosts from './pages/project-posts.js'
 import SqliteStore from 'better-sqlite3-session-store'
 import { Jetstream } from './jetstream/jetstream.js'
+import setupAdmin from './admin.js'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
@@ -90,6 +91,7 @@ export class FeedGenerator {
     app.get('/login', (req, res) => {
       res.render('login', { invalid: req.query.invalid === 'true' })
     })
+    setupAdmin(app, ctx)
     app.get('/', renderPopular(ctx))
     app.get('/feed/:feedKey', renderFeedProjects(ctx))
     app.get('/project/:projectId', renderProjectPosts(ctx))

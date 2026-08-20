@@ -51,7 +51,7 @@ export const newPostProcessor = async (job: { post: NewPost }, cb) => {
         indexedAt: job.post.indexedAt,
         createdAt: job.post.createdAt,
       })
-      .onConflict((oc) => oc.doNothing())
+      .onConflict((oc) => oc.columns(['projectId', 'uri']).doNothing())
       .execute()
 
     projectIds.push(project.projectId)

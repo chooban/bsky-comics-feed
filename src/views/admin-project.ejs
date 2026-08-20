@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - <%= project.title %> - Posts</title>
+  <%- include('./partials/styles-base') %>
+  <style>
+    .flash {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 12px 16px;
+      border-radius: var(--border-radius-sm);
+      margin-bottom: 20px;
+    }
+
+    .form {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: var(--border-radius-sm);
+      box-shadow: var(--card-shadow);
+      max-width: 700px;
+    }
+
+    .form label {
+      display: block;
+      font-weight: 600;
+      color: var(--color-dark);
+      margin: 16px 0 6px 0;
+    }
+
+    .form input[type="text"],
+    .form select,
+    .form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+      background: var(--card-bg);
+      color: var(--color-dark);
+    }
+
+    .form textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      background: var(--color-primary);
+      color: white;
+      border: 0;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-danger {
+      padding: 10px 20px;
+      background: var(--color-error);
+      color: white;
+      border: 0;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .readonly {
+      color: var(--color-gray-dark);
+      font-size: 13px;
+      margin-bottom: 8px;
+      overflow-wrap: break-word;
+    }
+
+    .readonly-label {
+      color: var(--color-gray-medium);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hint {
+      color: var(--color-gray-medium);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin - <%= project.title %></h1>
+    <p><a href="/admin" class="view-link">← Back to projects</a> · <a href="/project/<%= project.projectId %>" class="view-link" target="_blank">View on site</a></p>
+
+    <% if (saved) { %>
+      <div class="flash">Saved. This project is now marked as manual and won't be overwritten by the scraper.</div>
+    <% } %>
+    <% if (requeued) { %>
+      <div class="flash">This project has been handed back to the scraper. It will be picked up on the next run.</div>
+    <% } %>
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <div class="form">
+      <div class="readonly-label">Project URL</div>
+      <div class="readonly"><a href="<%= project.uri %>" target="_blank"><%= project.uri %></a></div>
+      <div class="readonly-label">Status</div>
+      <div class="readonly">
+        <%= project.isManual === 1 ? 'Manual (scraper will not touch this)' : 'Scraper-managed' %> ·
+        last indexed: <%= project.indexedAt ? new Date(project.indexedAt).toLocaleString('en-US') : 'never' %>
+      </div>
+
+      <form method="post" action="/admin/project/<%= project.projectId %>">
+        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" value="<%= formTitle %>" onfocus="this.value=''" required />
+
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+          <option value="">Select category</option>
+          <% categoryOptions.forEach(function(option) { %>
+            <option value="<%= option %>" <%= option === project.category ? 'selected' : '' %>><%= option %></option>
+          <% }) %>
+        </select>
+        <div class="hint">e.g. Comic Books, Graphic Novels, Tabletop Games</div>
+
+        <label for="parentCategory">Parent Category</label>
+        <select id="parentCategory" name="parentCategory" required>
+          <option value="">Select parent category</option>
+          <% parentCategoryOptions.forEach(function(option) { %>
+            <option value="<%= option %>" <%= option === project.parentCategory ? 'selected' : '' %>><%= option %></option>
+          <% }) %>
+        </select>
+        <div class="hint">e.g. Comics, Games, Publishing, Film &amp; Video, Food</div>
+
+        <label for="blurb">Blurb / Description</label>
+        <% if (cardybUsed) { %>
+          <div class="hint" style="margin-bottom: 4px;">Title and description auto-filled from cardyb. Click a field to clear it.</div>
+        <% } %>
+        <textarea id="blurb" name="blurb" onfocus="this.value=''"><%= blurb %></textarea>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+
+      <form method="post" action="/admin/project/<%= project.projectId %>/reindex"
+            onsubmit="return confirm('Hand this project back to the scraper? Manual details will be overwritten on the next run.');"
+            style="margin-top: 12px;">
+        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+        <button type="submit" class="btn-danger">Force re-scrape</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

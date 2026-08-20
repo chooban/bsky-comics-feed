@@ -97,6 +97,9 @@
 <body>
   <div class="container">
     <h1>Popular Kickstarter Projects</h1>
+    <% if (isAuthenticated) { %>
+      <p><a href="/admin" class="view-link">Admin</a></p>
+    <% } %>
     <p class="subtitle">
       Top categories and projects from the last 7 days (since <%= fromDate %>)
     </p>

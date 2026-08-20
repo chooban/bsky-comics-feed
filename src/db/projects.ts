@@ -34,6 +34,7 @@ export const findOrCreateProject = async (
       category: UNKNOWN,
       parentCategory: UNKNOWN,
       isIndexing: 0,
+      isManual: 0,
       addedAt: new Date().toISOString(),
       details: {},
     })
