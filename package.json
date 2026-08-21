@@ -8,8 +8,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "publishFeed": "ts-node scripts/publishFeedGen.ts",
-    "unpublishFeed": "ts-node scripts/unpublishFeedGen.ts",
+    "publishFeed": "tsx scripts/publishFeedGen.ts",
+    "unpublishFeed": "tsx scripts/unpublishFeedGen.ts",
     "dev": "tsc-watch --onSuccess \"node ./dist/index.js\"",
     "start": "node dist/index.js",
     "build": "tsc",
@@ -71,8 +71,8 @@
     "nodemon": "^3.1.9",
     "prettier": "^3.5.3",
     "ts-jest": "^29.2.6",
-    "ts-node": "^10.9.1",
     "tsc-watch": "^6.2.1",
+    "tsx": "^4.23.12",
     "typescript": "^5.8.2"
   }
 }

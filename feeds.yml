@@ -56,6 +56,9 @@ feeds:
   cfbooks:
     title: Kickstarter Publishing
     description: Book and zine projects being crowdfunded on Kickstarter.
+    categories:
+      - Fiction
+      - Nonfiction
     parentCategory:
       - Publishing
   cffilm:

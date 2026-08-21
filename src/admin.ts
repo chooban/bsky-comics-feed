@@ -81,7 +81,9 @@ const getProjectsNeedingAttention = async (ctx: AppContext, q?: string) => {
       eb.or([eb('project.uri', 'like', like), eb('project.title', 'like', like)]),
     )
   } else {
-    builder = builder.where('project.title', '=', UNKNOWN)
+    builder = builder
+      .where('project.title', '=', UNKNOWN)
+      .having((eb) => eb.fn.count('post.postId'), '>', 1)
   }
 
   return builder
@@ -144,12 +146,27 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         (project.details as { blurb?: string } | null)?.blurb ??
         ''
 
+      const dbCategories = await ctx.db
+        .selectFrom('project')
+        .select('category')
+        .where('category', '!=', UNKNOWN)
+        .distinct()
+        .execute()
+      const dbParentCategories = await ctx.db
+        .selectFrom('project')
+        .select('parentCategory')
+        .where('parentCategory', '!=', UNKNOWN)
+        .where('parentCategory', 'is not', null)
+        .distinct()
+        .execute()
+
       const categoryOptions = [
         ...new Set([
           ...(project.category && project.category !== UNKNOWN
             ? [project.category]
             : []),
           ...Object.values(ctx.cfg.feeds).flatMap((f) => f.categories ?? []),
+          ...dbCategories.map((c) => c.category),
         ]),
       ].sort()
       const parentCategoryOptions = [
@@ -160,6 +177,7 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
           ...Object.values(ctx.cfg.feeds)
             .map((f) => f.parentCategory)
             .filter((c): c is string => !!c),
+          ...dbParentCategories.map((c) => c.parentCategory),
         ]),
       ].sort()
 

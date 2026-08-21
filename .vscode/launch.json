@@ -20,7 +20,7 @@
       "type": "node",
       "request": "launch",
       "args": ["${relativeFile}"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "runtimeArgs": ["--nolazy", "--import", "tsx"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
         "runtimeExecutable": "${env:HOME}/.nvm/versions/node/v20.18.0/bin/node"

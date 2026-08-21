@@ -6,7 +6,7 @@ import { AppBskyFeedGenerator } from '@atcute/bluesky'
 import path from 'path'
 import * as yaml from 'js-yaml'
 import { exit } from 'process'
-import { buildFeedConfig } from '../src/config'
+import { buildFeedConfig } from '../src/config.js'
 
 const run = async () => {
   dotenv.config()

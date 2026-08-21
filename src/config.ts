@@ -70,13 +70,16 @@ export const buildFeedConfig = (
     const rawData = records['feeds']
     if (rawData instanceof Object) {
       for (const k in rawData) {
+        const parentCategory = rawData[k]['parentCategory']
         const f: Feed = {
           key: k,
           title: rawData[k]['title'] as string,
           description: rawData[k]['description'] as string,
           categories: rawData[k]['categories'],
           avatar: rawData[k]['avatar'],
-          parentCategory: rawData[k]['parentCategory'],
+          parentCategory: Array.isArray(parentCategory)
+            ? parentCategory[0]
+            : parentCategory,
         }
         feeds[k] = f
       }
