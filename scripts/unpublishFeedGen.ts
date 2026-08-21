@@ -5,7 +5,7 @@ import inquirer from 'inquirer'
 const FEED_GENERATOR_NSID = 'app.bsky.feed.generator'
 
 const run = async () => {
-  dotenv.config()
+  dotenv.config({ path: process.env.DOTENV_CONFIG_PATH })
 
   if (!process.env.APP_PASSWORD) {
     throw new Error('Please provide an app password in the .env file')

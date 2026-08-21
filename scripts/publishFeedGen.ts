@@ -10,7 +10,7 @@ import { buildFeedConfig } from '../src/config.js'
 const FEED_GENERATOR_NSID = 'app.bsky.feed.generator'
 
 const run = async () => {
-  dotenv.config()
+  dotenv.config({ path: process.env.DOTENV_CONFIG_PATH })
 
   if (!process.env.FEEDGEN_SERVICE_DID && !process.env.FEEDGEN_HOSTNAME) {
     throw new Error('Please provide a hostname in the .env file')
