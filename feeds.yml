@@ -25,9 +25,14 @@ feeds:
       - Games
   cfgadgets:
     title: Crowdfunded Gadgets 
-    description: Gadgets being crowdfunded on Kickstarter.
+    description: Gadgets and tech hardware being crowdfunded on Kickstarter.
     categories:
       - Gadgets
+      - Camera Equipment
+      - Wearables
+      - Robots
+      - Sound
+      - Space Exploration
   cfmakers:
     title: Crowdfunding For Makers 
     description: Makers projects being crowdfunded on Kickstarter.
@@ -38,6 +43,9 @@ feeds:
       - Makerspaces 
       - Textiles 
       - Woodworking
+      - Wearables
+      - Robots
+      - Fabrication Tools
   cfmusic:
     title: Kickstarter Music 
     description: Music projects being crowdfunded on Kickstarter.
@@ -54,12 +62,22 @@ feeds:
       - Musical
       - Rock
       - World Music
+      - Pop
+      - Punk
+      - Blues
+      - R&B
+      - Latin
+      - Kids
+      - Faith
+    parentCategory:
+      - Music
   cfbooks:
     title: Kickstarter Publishing
     description: Book and zine projects being crowdfunded on Kickstarter.
     categories:
       - Fiction
       - Nonfiction
+      - Photobooks
     parentCategory:
       - Publishing
   cffilm:
@@ -77,3 +95,25 @@ feeds:
     description: Kickstarter projects under the parent category of "Food"
     parentCategory:
         - Food
+  cfdesign:
+    title: Kickstarter Design
+    description: Design projects on Kickstarter
+    parentCategory:
+      - Design
+  cfart:
+    title: Kickstarter Art
+    description: Art projects on Kickstarter
+    parentCategory:
+      - Art
+  cffashion:
+    title: Kickstarter Fashion
+    description: Fashion projects on Kickstarter
+    parentCategory:
+      - Fashion
+  cfphotography:
+    title: Kickstarter Photography
+    description: Photography projects on Kickstarter
+    categories:
+      - Photobooks
+    parentCategory:
+      - Photography
