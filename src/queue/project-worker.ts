@@ -33,7 +33,6 @@ export default async (job, cb) => {
     .where((eb) =>
       eb.and([
         eb('project.isIndexing', '=', 0),
-        eb('project.isManual', '=', 0),
         eb('post.indexedAt', '>', yesterday.toISOString()),
       ]),
     )
@@ -160,16 +159,13 @@ export default async (job, cb) => {
       .execute()
   }
 
-  // If we didn't find a match, then clear the flag and set it was indexed anyway. We can be more
-  // clever with choosing which to re-index.
+  // If we didn't find a match, then clear the lock and stamp the attempt time.
+  // Keep any existing data in place rather than resetting to Unknown.
   await db
     .updateTable('project')
     .set({
       isIndexing: 0,
       indexedAt: new Date().toISOString(),
-      category: UNKNOWN,
-      title: UNKNOWN,
-      parentCategory: UNKNOWN,
     })
     .where('project.isIndexing', '=', 1)
     .execute()
