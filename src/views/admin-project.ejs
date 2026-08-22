@@ -91,7 +91,7 @@
     <p><a href="/admin" class="view-link">← Back to projects</a> · <a href="/project/<%= project.projectId %>" class="view-link" target="_blank">View on site</a></p>
 
     <% if (saved) { %>
-      <div class="flash">Saved. This project is now marked as manual and won't be overwritten by the scraper.</div>
+      <div class="flash">Saved. This project is marked as manually edited; the scraper may still update it on a rescan.</div>
     <% } %>
     <% if (error) { %>
       <div class="error"><%= error %></div>
