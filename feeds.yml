@@ -5,6 +5,7 @@ feeds:
     parentCategory:
       - Comics
     categories:
+      - Comics
       - Comic Books
       - Graphic Novels
       - Webcomics

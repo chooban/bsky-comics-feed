@@ -110,7 +110,7 @@
         <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
 
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" value="<%= formTitle %>" onfocus="this.value=''" required />
+        <input type="text" id="title" name="title" value="<%= formTitle %>" onfocus="if(this.value==='Unknown') this.value=''" required />
 
         <label for="category">Category</label>
         <select id="category" name="category" required>
@@ -131,10 +131,10 @@
         <div class="hint">e.g. Comics, Games, Publishing, Film &amp; Video, Food</div>
 
         <label for="blurb">Blurb / Description</label>
-        <% if (cardybUsed) { %>
-          <div class="hint" style="margin-bottom: 4px;">Title and description auto-filled from cardyb. Click a field to clear it.</div>
-        <% } %>
-        <textarea id="blurb" name="blurb" onfocus="this.value=''"><%= blurb %></textarea>
+        <div id="cardyb-loading" class="hint" style="display: none; margin-bottom: 4px;">
+          Loading project details from cardyb…
+        </div>
+        <textarea id="blurb" name="blurb" onfocus="if(this.value==='Unknown') this.value=''"><%= blurb %></textarea>
 
         <div class="form-actions">
           <button type="submit" class="btn-primary">Save</button>
@@ -142,5 +142,53 @@
       </form>
     </div>
   </div>
+
+  <script>
+    (function () {
+      var needsCardyb = <%= needsCardyb %>;
+      if (!needsCardyb) return;
+
+      var form = document.querySelector('form[action*="/admin/project"]');
+      if (!form) return;
+
+      var titleInput = document.getElementById('title');
+      var blurbTextarea = document.getElementById('blurb');
+      var loadingNote = document.getElementById('cardyb-loading');
+      var projectUri = <%- JSON.stringify(projectUri) %>;
+
+      var setDisabled = function (disabled) {
+        form.querySelectorAll('input, textarea, select, button').forEach(function (el) {
+          el.disabled = disabled;
+        });
+      };
+
+      setDisabled(true);
+      if (loadingNote) loadingNote.style.display = 'block';
+
+      fetch('/admin/cardyb?url=' + encodeURIComponent(projectUri))
+        .then(function (res) {
+          if (!res.ok) throw new Error('cardyb ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          if (data.title && (titleInput.value === 'Unknown' || titleInput.value === '')) {
+            titleInput.value = data.title;
+          }
+          if (
+            data.description &&
+            (blurbTextarea.value === 'Unknown' || blurbTextarea.value === '')
+          ) {
+            blurbTextarea.value = data.description;
+          }
+        })
+        .catch(function (err) {
+          console.error('cardyb fetch failed', err);
+        })
+        .finally(function () {
+          setDisabled(false);
+          if (loadingNote) loadingNote.style.display = 'none';
+        });
+    })();
+  </script>
 </body>
 </html>

@@ -138,13 +138,10 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
       }
 
       const needsCardyb = project.title === UNKNOWN
-      const cardyb = needsCardyb ? await fetchCardyb(project.uri) : null
 
-      const formTitle = cardyb?.title ?? project.title
+      const formTitle = project.title
       const formBlurb =
-        cardyb?.description ??
-        (project.details as { blurb?: string } | null)?.blurb ??
-        ''
+        (project.details as { blurb?: string } | null)?.blurb ?? ''
 
       const dbCategories = await ctx.db
         .selectFrom('project')
@@ -185,7 +182,8 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         project,
         formTitle,
         blurb: formBlurb,
-        cardybUsed: needsCardyb && cardyb !== null,
+        needsCardyb,
+        projectUri: project.uri,
         categoryOptions,
         parentCategoryOptions,
         saved: req.query.saved === '1',
@@ -249,6 +247,23 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
     } catch (err) {
       console.error('Error saving admin project:', err)
       res.status(500).send('Internal server error')
+    }
+  })
+
+  router.get('/cardyb', async (req, res) => {
+    try {
+      const url = typeof req.query.url === 'string' ? req.query.url : ''
+      if (!url) {
+        return res.status(400).json({ error: 'Missing url' })
+      }
+      const cardyb = await fetchCardyb(url)
+      if (!cardyb) {
+        return res.status(404).json({ error: 'cardyb returned nothing' })
+      }
+      res.json(cardyb)
+    } catch (err) {
+      console.error('cardyb proxy error:', err)
+      res.status(500).json({ error: 'cardyb fetch failed' })
     }
   })
 
