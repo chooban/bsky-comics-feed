@@ -44,6 +44,10 @@
         <%= description %><br>
         Projects mentioned in the last 7 days (since <%= fromDate %>)
       </p>
+
+      <p style="margin: 0 0 20px;">
+        <a href="https://bsky.app/profile/<%= hostname %>/feed/<%= feedKey %>" target="_blank" class="post-count">View on Bluesky ↗</a>
+      </p>
       
       <% if (projects && projects.length > 0) { %>
         <div class="projects-grid">
