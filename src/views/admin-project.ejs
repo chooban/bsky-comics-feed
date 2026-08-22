@@ -63,20 +63,6 @@
       font-size: 14px;
     }
 
-    .btn-danger {
-      padding: 10px 20px;
-      background: var(--color-error);
-      color: white;
-      border: 0;
-      border-radius: var(--border-radius-sm);
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .btn-danger:hover {
-      background: #c0392b;
-    }
-
     .readonly {
       color: var(--color-gray-dark);
       font-size: 13px;
@@ -106,9 +92,6 @@
 
     <% if (saved) { %>
       <div class="flash">Saved. This project is now marked as manual and won't be overwritten by the scraper.</div>
-    <% } %>
-    <% if (requeued) { %>
-      <div class="flash">This project has been handed back to the scraper. It will be picked up on the next run.</div>
     <% } %>
     <% if (error) { %>
       <div class="error"><%= error %></div>
@@ -156,13 +139,6 @@
         <div class="form-actions">
           <button type="submit" class="btn-primary">Save</button>
         </div>
-      </form>
-
-      <form method="post" action="/admin/project/<%= project.projectId %>/reindex"
-            onsubmit="return confirm('Hand this project back to the scraper? Manual details will be overwritten on the next run.');"
-            style="margin-top: 12px;">
-        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-        <button type="submit" class="btn-danger">Force re-scrape</button>
       </form>
     </div>
   </div>

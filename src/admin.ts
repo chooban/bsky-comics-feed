@@ -189,7 +189,6 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         categoryOptions,
         parentCategoryOptions,
         saved: req.query.saved === '1',
-        requeued: req.query.requeued === '1',
         csrfToken: getCsrfToken(req),
         hostname: ctx.cfg.hostname,
         error: null,
@@ -249,30 +248,6 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
       res.redirect(`/admin/project/${projectId}?saved=1`)
     } catch (err) {
       console.error('Error saving admin project:', err)
-      res.status(500).send('Internal server error')
-    }
-  })
-
-  router.post('/project/:projectId/reindex', async (req, res) => {
-    try {
-      const { projectId } = req.params
-      if (!isUUID(projectId)) {
-        return res.status(400).send('Invalid project ID')
-      }
-
-      await ctx.db
-        .updateTable('project')
-        .set({
-          isManual: 0,
-          isIndexing: 0,
-          indexedAt: null,
-        })
-        .where('projectId', '=', projectId)
-        .execute()
-
-      res.redirect(`/admin/project/${projectId}?requeued=1`)
-    } catch (err) {
-      console.error('Error requeueing admin project:', err)
       res.status(500).send('Internal server error')
     }
   })
