@@ -56,6 +56,9 @@ const csrf = (req: Request, res: Response, next: NextFunction) => {
 const requireLogin = ensureLoggedIn({ redirectTo: '/login' })
 
 const getProjectsNeedingAttention = async (ctx: AppContext, q?: string) => {
+  const oneWeekAgo = new Date()
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
   let builder = ctx.db
     .selectFrom('project')
     .innerJoin('post', 'post.projectId', 'project.projectId')
@@ -83,12 +86,13 @@ const getProjectsNeedingAttention = async (ctx: AppContext, q?: string) => {
   } else {
     builder = builder
       .where('project.title', '=', UNKNOWN)
+      .where('post.createdAt', '>', oneWeekAgo.toISOString())
       .having((eb) => eb.fn.count('post.postId'), '>', 1)
   }
 
   return builder
-    .orderBy('lastPostAt', 'desc')
     .orderBy('postCount', 'desc')
+    .orderBy('lastPostAt', 'desc')
     .limit(200)
     .execute()
 }
