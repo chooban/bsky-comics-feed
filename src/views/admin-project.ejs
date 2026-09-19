@@ -91,7 +91,7 @@
     <p><a href="/admin" class="view-link">← Back to projects</a> · <a href="/project/<%= project.projectId %>" class="view-link" target="_blank">View on site</a></p>
 
     <% if (saved) { %>
-      <div class="flash">Saved. This project is marked as manually edited; the scraper may still update it on a rescan.</div>
+      <div class="flash">Saved. Projects you edit are marked as manually edited; the scraper may still update them on a rescan.</div>
     <% } %>
     <% if (error) { %>
       <div class="error"><%= error %></div>
@@ -145,16 +145,70 @@
 
   <script>
     (function () {
+      var categoryParents = <%- JSON.stringify(categoryParents) %>;
       var needsCardyb = <%= needsCardyb %>;
-      if (!needsCardyb) return;
+      var projectUri = <%- JSON.stringify(projectUri) %>;
 
       var form = document.querySelector('form[action*="/admin/project"]');
       if (!form) return;
 
       var titleInput = document.getElementById('title');
+      var categorySelect = document.getElementById('category');
+      var parentSelect = document.getElementById('parentCategory');
       var blurbTextarea = document.getElementById('blurb');
       var loadingNote = document.getElementById('cardyb-loading');
-      var projectUri = <%- JSON.stringify(projectUri) %>;
+
+      var formReady = !needsCardyb;
+      var allParents = Array.prototype.map
+        .call(parentSelect.options, function (o) {
+          return o.value;
+        })
+        .filter(function (v) {
+          return v !== '';
+        });
+
+      var renderParents = function (values) {
+        var current = parentSelect.value;
+        parentSelect.innerHTML = '';
+
+        var placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select parent category';
+        parentSelect.appendChild(placeholder);
+
+        values.forEach(function (value) {
+          var option = document.createElement('option');
+          option.value = value;
+          option.textContent = value;
+          parentSelect.appendChild(option);
+        });
+
+        if (current && values.indexOf(current) !== -1) {
+          parentSelect.value = current;
+        }
+      };
+
+      var maybeAutoSave = function () {
+        if (!formReady) return;
+        var title = titleInput.value.trim();
+        if (!title || title === 'Unknown') return;
+        if (!categorySelect.value || !parentSelect.value) return;
+        form.submit();
+      };
+
+      var applyCategory = function () {
+        var parents = categoryParents[categorySelect.value] || [];
+        renderParents(parents.length ? parents : allParents);
+        if (parents.length === 1) {
+          parentSelect.value = parents[0];
+        }
+        maybeAutoSave();
+      };
+
+      categorySelect.addEventListener('change', applyCategory);
+      parentSelect.addEventListener('change', maybeAutoSave);
+
+      if (!needsCardyb) return;
 
       var setDisabled = function (disabled) {
         form.querySelectorAll('input, textarea, select, button').forEach(function (el) {
@@ -186,6 +240,7 @@
         })
         .finally(function () {
           setDisabled(false);
+          formReady = true;
           if (loadingNote) loadingNote.style.display = 'none';
         });
     })();

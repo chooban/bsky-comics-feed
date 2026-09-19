@@ -83,6 +83,14 @@
       font-weight: 600;
       margin-left: 8px;
     }
+
+    .flash {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 12px 16px;
+      border-radius: var(--border-radius-sm);
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -91,6 +99,10 @@
       <h1>Admin - Projects</h1>
       <a href="/" class="view-link">← Back to site</a>
     </div>
+
+    <% if (saved) { %>
+      <div class="flash">Saved. No more projects need attention.</div>
+    <% } %>
 
     <form method="get" action="/admin" class="search-form" style="margin-bottom: 20px;">
       <input type="text" name="q" placeholder="Search by URL or title" value="<%= q || '' %>" />

@@ -2,6 +2,7 @@ import { InvalidRequestError } from '@atproto/xrpc-server'
 import { AppContext } from '../config.js'
 import { AtUri } from '@atproto/syntax'
 import { countFeedRequest, countFeedSize } from '../metrics.js'
+import { recordFeedUser } from '../feed-stats.js'
 import { buildFeed } from '../algos/kickstarter-algo.js'
 import { Express, Request, Response } from 'express'
 import asyncHandler from 'express-async-handler'
@@ -9,6 +10,25 @@ export interface QueryParams {
   feed: string
   limit: number
   cursor?: string
+}
+
+const extractRequesterDid = (req: Request): string => {
+  const authorization = req.headers.authorization ?? ''
+  if (!authorization.startsWith('Bearer ')) {
+    return 'unknown'
+  }
+  const token = authorization.replace('Bearer ', '').trim()
+  try {
+    const payload = token.split('.')[1]
+    if (!payload) {
+      return 'unknown'
+    }
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
+    const iss = decoded?.iss
+    return typeof iss === 'string' && iss.startsWith('did:') ? iss : 'unknown'
+  } catch {
+    return 'unknown'
+  }
 }
 
 export default function (server: Express, ctx: AppContext) {
@@ -60,6 +80,11 @@ export default function (server: Express, ctx: AppContext) {
       if (!cursor) {
         countFeedSize(feedUri.rkey, body.feed.length)
       }
+      recordFeedUser(ctx.db, feedUri.rkey, extractRequesterDid(req)).catch(
+        (err) => {
+          console.error('Error recording feed user', err)
+        },
+      )
 
       res.json(body)
     }),

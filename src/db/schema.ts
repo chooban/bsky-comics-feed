@@ -4,6 +4,20 @@ export type DatabaseSchema = {
   post: Post
   sub_state: SubState
   project: Project
+  feed_stats: FeedStats
+  feed_post_stats: FeedPostStats
+}
+
+export type FeedStats = {
+  feed: string
+  day: string
+  did: string
+}
+
+export type FeedPostStats = {
+  feed: string
+  day: string
+  author: string
 }
 
 export type Post = {

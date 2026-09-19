@@ -20,6 +20,7 @@ import renderProjectPosts from './pages/project-posts.js'
 import SqliteStore from 'better-sqlite3-session-store'
 import { Jetstream } from './jetstream/jetstream.js'
 import setupAdmin from './admin.js'
+import { initFeedStats } from './feed-stats.js'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
@@ -108,6 +109,7 @@ export class FeedGenerator {
 
   async start(): Promise<http.Server> {
     await migrateToLatest(this.db)
+    await initFeedStats(this.db.kysely)
     this.jetstream.start()
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')

@@ -2,6 +2,7 @@ import { buildConfig } from '../config.js'
 import { createDb, findOrCreateProject } from '../db/index.js'
 import { createUUID, UUID } from '../types/uuid.js'
 import { isCrowdfundingUrl } from '../util/crowdfunding.js'
+import { feedsForProject, recordFeedPostAuthor } from '../feed-stats.js'
 
 export type NewPost = {
   uri: string
@@ -53,6 +54,15 @@ export const newPostProcessor = async (job: { post: NewPost }, cb) => {
       })
       .onConflict((oc) => oc.columns(['projectId', 'uri']).doNothing())
       .execute()
+
+    const postDay = job.post.createdAt.slice(0, 10)
+    for (const feedKey of feedsForProject(
+      appConfig.feeds,
+      project.parentCategory,
+      project.category,
+    )) {
+      await recordFeedPostAuthor(db, feedKey, postDay, job.post.author)
+    }
 
     projectIds.push(project.projectId)
   }

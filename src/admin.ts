@@ -112,6 +112,7 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         projects,
         q,
         hostname: ctx.cfg.hostname,
+        saved: req.query.saved === '1',
         error: null,
       })
     } catch (err) {
@@ -120,6 +121,7 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         projects: [],
         q: undefined,
         hostname: ctx.cfg.hostname,
+        saved: false,
         error: 'Internal server error',
       })
     }
@@ -182,6 +184,17 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         ]),
       ].sort()
 
+      const categoryParents: Record<string, string[]> = {}
+      for (const feed of Object.values(ctx.cfg.feeds)) {
+        if (!feed.parentCategory) continue
+        for (const category of feed.categories ?? []) {
+          const parents = (categoryParents[category] ??= [])
+          if (!parents.includes(feed.parentCategory)) {
+            parents.push(feed.parentCategory)
+          }
+        }
+      }
+
       res.render('admin-project', {
         project,
         formTitle,
@@ -190,6 +203,7 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         projectUri: project.uri,
         categoryOptions,
         parentCategoryOptions,
+        categoryParents,
         saved: req.query.saved === '1',
         csrfToken: getCsrfToken(req),
         hostname: ctx.cfg.hostname,
@@ -247,7 +261,13 @@ export default function setupAdmin(app: express.Application, ctx: AppContext) {
         .where('projectId', '=', projectId)
         .execute()
 
-      res.redirect(`/admin/project/${projectId}?saved=1`)
+      const nextProjects = await getProjectsNeedingAttention(ctx)
+      const next = nextProjects.find((p) => p.projectId !== projectId)
+      if (next) {
+        res.redirect(`/admin/project/${next.projectId}?saved=1`)
+      } else {
+        res.redirect('/admin?saved=1')
+      }
     } catch (err) {
       console.error('Error saving admin project:', err)
       res.status(500).send('Internal server error')

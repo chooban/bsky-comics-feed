@@ -196,3 +196,33 @@ migrations['013'] = {
     await db.schema.alterTable('project').dropColumn('isManual').execute()
   },
 }
+
+migrations['014'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .createTable('feed_stats')
+      .addColumn('feed', 'varchar', (col) => col.notNull())
+      .addColumn('day', 'varchar', (col) => col.notNull())
+      .addColumn('did', 'varchar', (col) => col.notNull())
+      .addPrimaryKeyConstraint('feed_stats_pk', ['feed', 'day', 'did'])
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.dropTable('feed_stats').execute()
+  },
+}
+
+migrations['015'] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .createTable('feed_post_stats')
+      .addColumn('feed', 'varchar', (col) => col.notNull())
+      .addColumn('day', 'varchar', (col) => col.notNull())
+      .addColumn('author', 'varchar', (col) => col.notNull())
+      .addPrimaryKeyConstraint('feed_post_stats_pk', ['feed', 'day', 'author'])
+      .execute()
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.dropTable('feed_post_stats').execute()
+  },
+}
